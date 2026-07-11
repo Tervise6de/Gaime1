@@ -4,7 +4,7 @@ Canonical current state. Every session updates this file before ending.
 
 ## Current state
 
-- **Current stage:** `SETUP_COMPLETE`
+- **Current stage:** `RESEARCH` — run 1 in progress (session heartbeat: 2026-07-11, autonomous run started; other sessions should avoid competing writes)
 - **Current product:** none
 - **Fallback product:** none
 - **Current implementation:** none
