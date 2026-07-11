@@ -82,6 +82,10 @@ winner selection, launch-scope decisions).
   sender dashboard.
 - Kill / pivot condition: at Stage 5, if we cannot honestly argue the
   recipient experience is materially better than Content Snare's, C-1 loses.
+- **UPDATE 2026-07-11 (E-3):** condition substantially met — Content Snare's
+  documented recipient flow already is no-login + mobile camera + auto
+  reminders at the same price floor. C-1 demoted to presumptive fallback
+  (D-4).
 
 ### R-4: ChaseList — sensitive client documents  [privacy/security risk]
 - Likelihood: certain (inherent to the product)

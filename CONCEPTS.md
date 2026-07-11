@@ -392,4 +392,7 @@ artifact) — passive footers don't convert.
   spreadsheet. The unconventional slot went to C-4 on evidence strength.
 - C-12: no path to the decision moment; D/D grades; liability framing.
 
-- Status: C-1 FINALIST-A, C-4 FINALIST-B; all others REJECTED (reasons above).
+- Status: C-1 FINALIST-A (presumptive FALLBACK per D-4/E-3 — differentiation
+  failure criterion substantially triggered by incumbent audit), C-4
+  FINALIST-B (presumptive WINNER per D-4, conditional on passing its E-2
+  quality harness); all others REJECTED (reasons above).

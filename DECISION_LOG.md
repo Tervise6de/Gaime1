@@ -79,3 +79,35 @@ reversing any earlier decision.
 - What could invalidate this decision: a selected winner needing
   capabilities this stack serves poorly (then re-decide at Stage 6 entry).
 - Status: ACTIVE
+
+## D-4: Provisional Stage 5 outcome — InkLine presumptive winner, ChaseList presumptive fallback
+
+- Date / session: 2026-07-11, run 1 (end)
+- Decision: PROVISIONAL — not final. ChaseList's pre-registered failure
+  criterion is substantially triggered (E-3: every claimed differentiator —
+  no-login link, mobile camera upload, auto-reminders, $29 floor — is
+  already Content Snare's documented, headline offering). InkLine's
+  differentiation (standalone, no ecosystem lock-in, provenance-honest
+  uncertainty marking, shareable artifact pages) remains unrebutted, and
+  its journey prototype is verified. Therefore InkLine is the presumptive
+  winner and ChaseList the presumptive fallback.
+- CONFIRMATION CONDITION (must happen before Stage 6 development): InkLine
+  must PASS its own pre-registered quality harness (E-2: mean CER ≲10% on a
+  real mixed-difficulty corpus with near-zero hallucination proxy) once a
+  founder-supplied API key exists. If it fails, BOTH finalists have
+  triggered failure criteria → formal reconsideration (C-2 DrawDesk after
+  format-risk research, or a return to Stage 3 with the evaluation record).
+- Alternatives considered: declaring ChaseList winner (rejected — building
+  a feature-parity clone of Content Snare at the same price contradicts
+  the protocol's differentiation principles); declaring nothing (rejected —
+  the asymmetry in evidence is real and the next session needs a default).
+- Evidence: E-1 VERIFIED (ChaseList technically excellent — irrelevant if
+  undifferentiated); E-3 STRONG PROXY (public feature/pricing audit);
+  E-2 UNKNOWN (blocked on key). This decision deliberately rests on
+  differentiation evidence, not on unproven InkLine quality — hence
+  provisional with a hard confirmation gate.
+- What could invalidate this decision: InkLine failing its harness;
+  founder-level evidence that Content Snare churners leave for reasons
+  ChaseList fixes; head-to-head recipient-flow measurements favoring
+  ChaseList decisively.
+- Status: ACTIVE (provisional)

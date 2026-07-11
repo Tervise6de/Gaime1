@@ -68,3 +68,31 @@ runs" proves implementation, not user value.
 - Next action: with key present: `harness/fetch-corpus.sh` (verify URLs),
   trim ground truths to page scope, `npm run harness`, judge against the
   pre-registered failure criteria in CONCEPTS.md.
+
+## E-3: ChaseList — differentiation audit vs incumbents (pre-registered failure criterion)
+- Hypothesis: ChaseList's recipient-side differentiators (no-login link,
+  mobile camera capture, auto-reminders, $29–79 pricing) are meaningfully
+  better than Content Snare / Keeper's actual current offering.
+- Evidence classification (before test): ASSUMPTION (flagged as C-1's
+  hardest monetization/differentiation question at Stage 3).
+- Test: web audit of Content Snare, Keeper, Liscio, Financial Cents,
+  TaxDome, Pixie — pricing pages, recipient-flow documentation, reviews
+  (sources in the audit record, retrieved 2026-07-11).
+- Success criterion: at least one articulable feature or price
+  differentiator survives contact with incumbents' documented features.
+- Result: FAILED on features and price — VERIFIED FACT that Content Snare's
+  headline recipient experience is no-login unguessable links with mobile
+  photo capture and configurable auto-reminders, from $29/mo (identical
+  floor). Magic-link/no-login recipient flows are table stakes across
+  Financial Cents and Pixie too. Survivors are only: unpublished tap-count
+  polish (UNKNOWN), bookkeeper-close positioning (wedge, not moat), and
+  simplicity-vs-suites (already occupied by Content Snare).
+- Interpretation: C-1's pre-registered failure criterion is substantially
+  triggered (STRONG PROXY — public feature/pricing evidence; not a
+  head-to-head UX measurement). The recipient-friction bet was correct
+  about the market but the incumbent already made it.
+- Decision: ADJUST — ChaseList demoted to presumptive fallback (D-4);
+  not killed outright because head-to-head UX speed and incumbent-churn
+  reasons remain unmeasured.
+- Next action: none autonomous — reviving C-1 would require founder-level
+  evidence (incumbent churn interviews or head-to-head recipient testing).

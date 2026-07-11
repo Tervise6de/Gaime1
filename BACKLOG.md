@@ -6,26 +6,29 @@ low-value polish. `Now` may contain **at most five items**.
 
 ## Now
 
-1. Build ChaseList prototype (Finalist A): two-sided request→upload→track
-   loop per the backlog in CONCEPTS.md, with Playwright e2e. *(user value)*
-2. Build InkLine prototype (Finalist B): upload→transcribe(stub)→artifact
-   page + CER harness ready for a real key. *(user value / risk reduction)*
-3. ChaseList security basics: expiring tokens, type/size limits, rate
-   limiting — in the prototype, not deferred. *(risk reduction)*
-4. InkLine: assemble public-domain handwritten test corpus with ground-truth
-   transcriptions for the CER harness. *(risk reduction)*
-5. Stage 5 comparison: run both prototypes end to end, audit ChaseList vs
-   Content Snare/Keeper feature reality, record winner rationale.
-   *(risk reduction)*
+1. **Gate:** run InkLine real quality harness once `ANTHROPIC_API_KEY`
+   exists (fetch corpus → verify ground truths → `npm run harness` → judge
+   E-2 criteria → confirm/reverse D-4). *(risk reduction — the single
+   deciding experiment)*
+2. If gate passes: begin Stage 6 on InkLine — first loop: real-scan quality
+   on deliberately degraded documents + confidence-threshold tuning.
+   *(user value)*
+3. If gate passes: InkLine collections UX (box-of-letters flow: multi-page
+   upload, collection artifact page). *(user value / retention)*
+4. Prepare Stage 7 morning-report skeleton from run-1 evidence (both
+   prototypes, honest proven-vs-assumed). *(risk reduction)*
 
 ## Next
 
-- Founder ask (non-routine): supply an AI API key via `.env` to unblock
-  InkLine real-model verification (R-7).
-- Engineered conversion moments: ChaseList upload-confirmation CTA; InkLine
-  free-first-transcription on artifact page.
-- Stage 6 winner loops: highest-value assumption first.
-- Record Anthropic API in THIRD_PARTY_SERVICES.md when key activated.
+- Founder ask (non-routine, blocking): supply `ANTHROPIC_API_KEY` via
+  `prototypes/inkline/.env` (R-7); also confirm modest API spend for the
+  harness (~15 vision calls per run).
+- InkLine conversion moment: recipient-side "transcribe one of your own —
+  first page free" flow actually functional end to end.
+- Stage 6 loops: per-word confidence calibration audit; PDF-page ingestion;
+  GEDCOM/PDF export.
+- If D-4 reverses (harness fails): formal reconsideration — C-2 DrawDesk
+  format-risk research or return to Stage 3 with the evaluation record.
 
 ## Later
 
