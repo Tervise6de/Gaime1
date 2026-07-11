@@ -269,4 +269,127 @@ CREATIVE JUDGMENT / UNKNOWN.
   verified capability inflection + recipient-is-the-target-user loop).
 - Weakest distribution loops: C-5, C-10, C-12 — each compensates elsewhere
   (privacy WTP, timing wedge, novelty).
-- Status: all CANDIDATE. Finalist selection pending specialist evaluation.
+
+---
+
+## Specialist evaluation summary (2026-07-11, six independent evaluators)
+
+| # | Product | Growth | Monetization | Build risk | Privacy/legal | Red-team kill mechanism |
+|---|---|---|---|---|---|---|
+| C-1 | STRONG | B | **A** | A (but tests little) | HIGH→mitigable | Pain is client behavior, not tracking; Content Snare occupies the slot. *"Hardest to kill — every attack reduces to execution, not physics."* |
+| C-2 | STRONG | C | **A** | A (math verifiable) | MEDIUM (AIA (c)) | GC dictates format; non-infringing equivalent may be rejected by the exact gatekeeper. |
+| C-3 | PROMISING | C | C | C | MEDIUM | Speech lacks prices; without price book, review time ≈ typing time. |
+| C-4 | STRONG | **A** | B (credit packs) | B (CER measurable) | MEDIUM | Benchmark CER ≠ messy real scans; finite box; incumbents ship it free-in-subscription. |
+| C-5 | WEAK | D | B | D | LOW | Accuracy and trust fail simultaneously; anti-viral by design. |
+| C-6 | WEAK | C | C | A | HIGH | No reconciliation without bank feeds/payments = compliance project. |
+| C-7 | WEAK | B | D | B | LOW | Listeners don't listen; category graveyard (Ad Auris). |
+| C-8 | PROMISING | B+ | B | D (aesthetics unjudgeable) | LOW | Template look rejected by vanity bar; Canva eats "good enough". |
+| C-9 | PROMISING | B | B | B | MEDIUM | Clients answer email, not portals; portal desyncs and lies. |
+| C-10 | PROMISING | D | B | A (falsification=research) | MEDIUM | Single-source wedge; Instrumentl scoops migrants with an importer. |
+| C-11 | WEAK | A- | C | B | MEDIUM | Multi-party cold start; single-player value ≈ a spreadsheet. *Red team: "most self-deceiving."* |
+| C-12 | WEAK | D | D | C | HIGH | Can't reach the decision moment; ChatGPT does it free. |
+
+Cross-cutting red-team warning (recorded honestly): desk research plus
+prototype nights **cannot falsify recipient→creator conversion** on any
+loop; "paid competitors exist" simultaneously proves demand and disproves
+whitespace. All conversion claims stay ASSUMPTION until real users exist.
+
+Growth insight adopted for both finalists: engineer the **active conversion
+moment** (recipient gets value, then a one-click creator path inside the
+artifact) — passive footers don't convert.
+
+---
+
+## Finalists (Stage 3 complete — see DECISION_LOG.md D-2)
+
+### FINALIST A — C-1 ChaseList (conventional-strength pick)
+- **Core user journey:** bookkeeper builds request list from a template →
+  sends tokenized link → client uploads per-item (no login, mobile photo
+  friendly) → items auto-tick, reminders handle laggards → bookkeeper
+  downloads the complete bundle at close.
+- **Activation event:** first request list sent AND first client file
+  received back.
+- **Retention hypothesis:** month-end/quarter-end close recurs structurally;
+  saved clients + templates compound. [ASSUMPTION until users]
+- **Distribution loop:** recipient loop with an engineered conversion moment
+  — the client's upload-confirmation screen offers "collect files like this
+  yourself" one-click sender path. [ASSUMPTION on conversion — cannot be
+  falsified overnight; recorded as the concept's permanent open risk]
+- **Monetization loop:** subscription $29–79/mo tiered by active clients;
+  paid boundary = active-client count + automation + branding. [STRONG
+  PROXY — Content Snare price point proves category WTP]
+- **Prototype success criteria:** full two-sided loop runs locally (create →
+  recipient upload on mobile viewport → status → bundle download); recipient
+  reaches first upload in ≤3 taps with no account; reminder scheduling logic
+  provably correct; Playwright e2e passes both sides; security basics in
+  (expiring unguessable tokens, type/size limits, rate limiting).
+- **Failure criteria:** recipient flow cannot be made near-frictionless; or
+  post-build feature audit vs Content Snare/Keeper shows no articulable
+  differentiation (then C-1 fails Stage 5 comparison).
+- **First prototype backlog:** (1) schema: clients/requests/items/files;
+  (2) sender dashboard + template request lists; (3) tokenized no-login
+  recipient page, mobile-first upload; (4) status board + reminder scheduler
+  (logged, never sent externally); (5) zip bundle download; (6) recipient
+  confirmation with conversion CTA; (7) Playwright e2e; (8) security basics.
+- **Stack:** Node 22 + Express + better-sqlite3 + EJS + vanilla JS + multer;
+  Playwright for e2e. Zero external services, zero API keys.
+- **Third-party services:** none in prototype (email delivery stubbed to a
+  log; real delivery would need founder approval).
+- **Data/privacy:** client financial documents are sensitive — prototype
+  uses synthetic files only; expiring tokens, limits, auto-delete retention
+  from day one; encryption at rest before any real deployment.
+
+### FINALIST B — C-4 InkLine (unconventional high-conviction pick, preserved per protocol)
+- **Core user journey:** upload a photo of a handwritten family document →
+  side-by-side transcription with uncertainty highlighting → save into a
+  collection → share the artifact page with relatives; the relative reads
+  it and hits "transcribe one of your own" (free first page) right on the
+  artifact.
+- **Activation event:** first document transcribed and its artifact page
+  opened.
+- **Retention hypothesis:** documents arrive in boxes → multi-session usage;
+  honestly finite (credit packs match this — no forced subscription).
+- **Distribution loop:** shared artifact page where recipient = target user
+  (relatives hold their own documents) + free-first-transcription conversion
+  moment on the page. [ASSUMPTION on conversion]
+- **Monetization loop:** credit packs from ~$9 (first pages free) + annual
+  archive/institution plan. [STRONG PROXY on category WTP: human
+  transcribers are expensive; Transkribus charges; incumbents gate in
+  subscriptions]
+- **Prototype success criteria:** pipeline transcribes ≥15 public-domain
+  handwritten documents including deliberately degraded ones; CER measured
+  against scholarly ground truth; confident-but-wrong (hallucination) rate
+  measured; uncertainty highlighting visibly flags low-confidence words;
+  artifact page is self-explanatory and shareable.
+- **Failure criteria:** CER on realistic scans far above benchmark claims
+  (>~10% on average-quality documents) OR hallucinations frequent enough
+  that uncertainty highlighting can't be trusted OR per-page cost breaks
+  credit-pack economics.
+- **First prototype backlog:** (1) upload + image handling; (2)
+  provider-agnostic transcription module with STUB mode (**blocker: no AI
+  API key in this environment — founder must supply one for real runs**);
+  (3) confidence/uncertainty rendering; (4) shareable artifact page with
+  conversion CTA; (5) CER harness + public-domain test corpus with ground
+  truth; (6) collections.
+- **Stack:** same Node/Express/SQLite base; @anthropic-ai/sdk behind the
+  provider-agnostic module; key via `.env` (never committed).
+- **Third-party services:** Anthropic API (paid usage — requires founder
+  key; to be recorded in THIRD_PARTY_SERVICES.md when activated).
+- **Data/privacy:** prototype uses ONLY public-domain documents; launch
+  requires zero-retention API terms, family-consent guidance, deletion.
+
+### Rejected at Stage 3 (one-line reasons)
+- C-2: external kill risk (GC-dictated copyrighted formats) unresolvable by
+  building; growth C. Revisit only if research disproves the format problem.
+- C-3: value ceiling — speech lacks prices; monetization C.
+- C-5: build risk D + anti-viral by design + trust paradox.
+- C-6: HIGH risk (neighbor finances, money movement) + volunteer cold start.
+- C-7: killed on monetization (usage-without-revenue trap; category graveyard).
+- C-8: central quality bar not self-judgeable by an autonomous builder.
+- C-9: weaker twin of C-1 with a falser loop premise.
+- C-10: no loop; single-source wedge; falsification is research not product.
+- C-11: red-team consensus — multi-party cold start; single-player value ≈
+  spreadsheet. The unconventional slot went to C-4 on evidence strength.
+- C-12: no path to the decision moment; D/D grades; liability framing.
+
+- Status: C-1 FINALIST-A, C-4 FINALIST-B; all others REJECTED (reasons above).

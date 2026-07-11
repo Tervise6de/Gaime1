@@ -6,29 +6,37 @@ low-value polish. `Now` may contain **at most five items**.
 
 ## Now
 
-1. Stage 1 — brief opportunity research; record classified findings in
-   `USER_RESEARCH.md` (cap at ~20% of the run). *(risk reduction / user value)*
-2. Stage 2 — generate ≥ 10 meaningfully different non-game concepts with full
-   evaluations in `CONCEPTS.md`. *(user value / distribution / monetization)*
-3. Stage 3 — select two substantially different finalists; record rationale in
-   `DECISION_LOG.md`. *(risk reduction)*
+1. Build ChaseList prototype (Finalist A): two-sided request→upload→track
+   loop per the backlog in CONCEPTS.md, with Playwright e2e. *(user value)*
+2. Build InkLine prototype (Finalist B): upload→transcribe(stub)→artifact
+   page + CER harness ready for a real key. *(user value / risk reduction)*
+3. ChaseList security basics: expiring tokens, type/size limits, rate
+   limiting — in the prototype, not deferred. *(risk reduction)*
+4. InkLine: assemble public-domain handwritten test corpus with ground-truth
+   transcriptions for the CER harness. *(risk reduction)*
+5. Stage 5 comparison: run both prototypes end to end, audit ChaseList vs
+   Content Snare/Keeper feature reality, record winner rationale.
+   *(risk reduction)*
 
 ## Next
 
-- Stage 4 — build both competing prototypes, each testing its hardest
-  important assumption.
-- Select technology stack for the prototypes; document in `DECISION_LOG.md`
-  and record commands in `CLAUDE.md`.
-- Stage 5 — run and compare prototypes on implementation evidence; pick winner.
+- Founder ask (non-routine): supply an AI API key via `.env` to unblock
+  InkLine real-model verification (R-7).
+- Engineered conversion moments: ChaseList upload-confirmation CTA; InkLine
+  free-first-transcription on artifact page.
+- Stage 6 winner loops: highest-value assumption first.
+- Record Anthropic API in THIRD_PARTY_SERVICES.md when key activated.
 
 ## Later
 
-- Stage 6 — winner development loops (highest-value assumption first).
-- Prepare external-validation materials (landing copy, interview questions,
-  activation metric) — do not publish without founder approval.
-- Stage 7 — morning report with screenshots and recommendation.
+- External validation materials (landing copy, interview script, activation
+  funnel) — nothing published without founder approval.
+- Deployed preview behind auth (needs founder approval for any service).
+- Morning report (Stage 7) with screenshots.
 
 ## Rejected
 
-*(Record rejected work items here with a one-line reason, so future sessions
-do not re-propose them.)*
+- C-2, C-3, C-5, C-6, C-7, C-8, C-9, C-10, C-11, C-12 — Stage 3 rejections
+  with reasons in CONCEPTS.md; do not re-propose without new evidence.
+- Email sending from prototypes — external contact requires founder
+  approval; reminder engine logs instead.

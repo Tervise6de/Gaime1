@@ -4,16 +4,16 @@ Canonical current state. Every session updates this file before ending.
 
 ## Current state
 
-- **Current stage:** `RESEARCH` — run 1 in progress (session heartbeat: 2026-07-11, autonomous run started; other sessions should avoid competing writes)
-- **Current product:** none
-- **Fallback product:** none
-- **Current implementation:** none
-- **Target user:** none
-- **Active hypothesis:** none
-- **Last known good commit:** setup commit (see `git log -1` on main)
-- **Current build status:** not started
-- **Highest-value next action:** brief opportunity research and concept generation (Stages 1–2)
-- **Blockers:** none
+- **Current stage:** `TWO_FINALISTS` → entering `DUAL_PROTOTYPES` (run 1 in progress, 2026-07-11; other sessions should avoid competing writes)
+- **Current product:** none selected — two finalists: C-1 ChaseList (A), C-4 InkLine (B); see CONCEPTS.md finalist briefs
+- **Fallback product:** decided at Stage 5 (loser becomes fallback); strongest rejected concept: C-2 DrawDesk
+- **Current implementation:** starting `prototypes/chaselist/` (Node 22 + Express + SQLite + EJS)
+- **Target user:** A: solo bookkeepers/small accounting firms; B: family historians/genealogists
+- **Active hypothesis:** A: recipient friction is the fixable half of the document-chase problem; B: vision-LLM transcription quality on realistic scans clears the trust bar (CER + hallucination harness)
+- **Last known good commit:** Stage 3 decision commit (this one)
+- **Current build status:** prototypes not yet building — scaffolding next
+- **Highest-value next action:** build ChaseList two-sided loop with e2e tests; then InkLine stub-mode pipeline + CER harness
+- **Blockers:** InkLine real-model runs need a founder-supplied AI API key (R-7) — stub mode proceeds regardless
 - **Morning report ready:** false
 
 ## Stage definitions
