@@ -125,6 +125,47 @@ Vendor-published figures are always downgraded to WEAK/STRONG PROXY.
 - Show me the last quote/pay-app/report you produced. How long did it take?
 - Would you upload this document to a cloud tool? Why / why not?
 
+## Run 2 research (pivot — hands-off commerce loops), 2026-07-11
+
+**Loop mechanics (how standalone commerce tools grow hands-off):**
+- Proven pattern = badge/recipient/embed loop where the artifact is public
+  and the viewer is the ICP: Senja ($1M ARR, testimonial-widget badge —
+  STRONG PROXY), Calendly (~25% of signups from the booking-page badge —
+  STRONG PROXY), Carrd (~$1.5–2M ARR solo, "Made with Carrd" is the primary
+  engine — STRONG PROXY), Tally/Typeform (form badge; branding-removal
+  paywall — VERIFIED pricing).
+- Ingredients that make it work: output public by default & seen by the
+  buyer persona; badge on an artifact the recipient must engage with (not a
+  passive footer); single-player value first (no cold start); badge-removal
+  as the primary paywall; frictionless recipient path.
+- **Timeline honesty (STRONG PROXY):** badge loops are slow to ignite then
+  compound — Senja ~1 year to ~$5k MRR; Calendly/Carrd compounded over
+  years. Fast indie $1k-in-weeks stories came from LAUNCH SPIKES, not
+  badges. Pure hands-off badge growth to $1–2k in 3 months is unusual; a
+  tight, dense, fast-copying niche can ignite faster than a broad market.
+- **Avoid (saturated):** link-in-bio, generic form builders, generic
+  scheduling, generic creator storefronts.
+- **$1–2k/mo math:** price $19–29/mo → 50–90 paying customers clears target.
+
+**Fresh gaps (customer-facing commerce artifacts, underserved):**
+- Wedding day-of timeline / shot-list as a shared live link (today: static
+  Etsy/Canva PDFs) — dense peer loop (planner, DJ, videographer, 2nd
+  shooter, venue, couple all see it; most are vendors). Paid templates prove
+  WTP (STRONG PROXY); shared-link product is unbuilt (ASSUMPTION).
+- Permanent-jewelry pop-up page + walk-in waitlist — 2024–26 boom niche
+  (VERIFIED trend), owners spend $2.5–7.5k on gear (STRONG PROXY WTP),
+  peer loop at host boutiques/markets, tight fast-copying community.
+- Mobile/pop-up food-vendor daily menu (changes daily; restaurant QR tools
+  assume fixed location) — peer loop at markets. WEAK PROXY on gap size.
+- Cottage-food compliant labels — real "why now" (FDA 2025 allergen
+  guidance, sesame = 9th allergen, VERIFIED) but WEAK loop (label isn't
+  peer-facing) — noted, deprioritized on the hands-off filter.
+- Adjacent pop-up services (lash/brow/piercing/tattoo-flash) share the pop-up
+  page loop; tattoo tooling (Venue Ink) proves service-artists pay (STRONG
+  PROXY, adjacent).
+- Explicitly saturated / avoid: pet-groomer report cards, auto DVI, funeral
+  memorial pages, youth-sports team pages, single-property real-estate sites.
+
 ## External validation plan
 
 Once a winner exists (founder approval required before any publishing):

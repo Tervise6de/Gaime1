@@ -396,3 +396,62 @@ artifact) — passive footers don't convert.
   failure criterion substantially triggered by incumbent audit), C-4
   FINALIST-B (presumptive WINNER per D-4, conditional on passing its E-2
   quality harness); all others REJECTED (reasons above).
+
+---
+
+## Run 2 portfolio (pivot D-5) — hands-off customer-facing commerce tools
+
+Filter: standalone web app · commerce/SMB · output is a customer-facing or
+public broadcast (normal use = distribution) · intrinsic peer/badge/recipient
+loop · paid AT the value moment (remove badge / volume / pro) · $19–29/mo ·
+genuinely interesting. Unifying thesis: **vendors whose work product is seen
+by peers** = strongest hands-off loop (recipient = ICP). Status: CANDIDATES
+pending founder taste selection (taste gate before any prototyping).
+
+### R2-1: Pop-up service page + walk-in waitlist  [RECOMMENDED for 3-mo target]
+- For: permanent-jewelry / lash / brow / piercing / tattoo-flash pop-up artists.
+- Artifact: a live public page — where/when they'll be, catalog/prices, and a
+  walk-in waitlist — shown at host boutiques/markets and shared to IG.
+- Loop: peer + venue. Host venues and every walk-in see it; the tight,
+  fast-copying pop-up community adopts quickly (density → faster ignition).
+- Paid boundary: free page + "made with" footer; Pro removes footer, adds
+  custom domain, multiple events, SMS waitlist, deposits.
+- Why it fits: freshest niche (2024–26 boom), clear WTP (gear spend), fun/
+  visual/interesting, tight community best suited to a fast hands-off ignite.
+- Hardest assumption: niche small enough that ceiling is fine but TAM is
+  trend-dependent; loop needs the community to actually pass links.
+
+### R2-2: Wedding day-of timeline & shot-list (shared live link)
+- For: wedding photographers / planners (then DJs, videographers, venues).
+- Artifact: the day-of timeline + family/shot list, today a static Etsy/Canva
+  PDF, rebuilt as a live shareable link.
+- Loop: densest per-event peer loop — one wedding exposes 5–8 vendors, most of
+  whom are buyers. Single-player value first (photographer makes their own),
+  which dodges the multi-party cold-start that killed old C-11 VowSuite.
+- Paid boundary: free + footer; Pro removes it, unlimited weddings, branding.
+- Hardest assumption: seasonal, established vendors move slower than pop-up
+  crowd; is a live link enough better than a trusted PDF to switch?
+
+### R2-3: Daily menu for mobile / pop-up food vendors
+- For: food trucks, market stalls, pop-up kitchens (NOT fixed restaurants).
+- Artifact: a QR/shareable menu that changes daily; posted at the truck and to
+  IG stories.
+- Loop: diners scan at the truck; peer vendors at the same market see it.
+- Paid boundary: free + footer; Pro removes it, custom domain, sold-out
+  toggles, daily-specials scheduling.
+- Hardest assumption: gap vs restaurant QR tools real but WEAK PROXY; vendors
+  may accept a Canva board.
+
+### R2-4: Embeddable instant-quote / pricing widget  [broader reach, slower loop]
+- For: service SMBs (contractors, cleaners, agencies, freelancers).
+- Artifact: an interactive "get an instant estimate" widget embedded on the
+  business's own site; every visitor uses it.
+- Loop: badge on the embed (customer loop, not peer) → other owners see it;
+  broader TAM but slower to ignite than the peer loops above.
+- Paid boundary: free + badge; Pro removes badge, adds lead capture, logic,
+  multiple widgets.
+- Hardest assumption: customer badge loops are slow (see timeline honesty);
+  less "interesting" than the pop-up/event picks.
+
+Deprioritized: cottage-food labels (weak loop — label isn't peer-facing);
+all Run-1 concepts (wrong shape per D-5).

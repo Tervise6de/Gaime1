@@ -4,16 +4,16 @@ Canonical current state. Every session updates this file before ending.
 
 ## Current state
 
-- **Current stage:** `PROTOTYPE_COMPARISON` — provisional outcome recorded (D-4): InkLine presumptive winner, ChaseList presumptive fallback. Final confirmation gated on InkLine's real quality harness (needs founder-supplied API key).
-- **Current product:** InkLine (C-4) — PROVISIONAL winner, conditional on passing E-2 harness; do not start Stage 6 feature work before that gate
-- **Fallback product:** ChaseList (C-1) — technically verified but differentiation failure criterion triggered (E-3); strongest rejected concept remains C-2 DrawDesk
-- **Current implementation:** `prototypes/chaselist/` (22/22 tests green) and `prototypes/inkline/` (18/18 tests green in stub mode; accuracy harness ready); screenshots in each `docs/screenshots/`
-- **Target user:** family historians/genealogists (InkLine); fallback: solo bookkeepers
-- **Active hypothesis:** InkLine real-scan transcription quality clears the trust bar — E-2, UNKNOWN, blocked on key. This is the single gating question.
-- **Last known good commit:** `76ef109` (Stage 5 outcome; both prototypes green). Session lock RELEASED — run 1 ended 2026-07-11; no active session.
-- **Current build status:** both prototypes green (`npm test` in each directory)
-- **Highest-value next action:** obtain `ANTHROPIC_API_KEY` → fetch/verify corpus → run InkLine harness → confirm or reverse D-4; if confirmed, begin Stage 6 loops on InkLine
-- **Blockers:** founder-supplied API key (R-7); corpus image hosts 403'd by network policy (fetch script ready, URLs need verification)
+- **Current stage:** `CONCEPTS` (run 2, post-pivot D-5) — awaiting founder taste selection among the Run 2 shortlist before prototyping
+- **Current product:** none — Run 1 finalists shelved by founder pivot (D-5). Run 2 shortlist (R2-1..R2-4) in CONCEPTS.md pending selection
+- **Fallback product:** n/a during re-ideation; Run 1 prototypes preserved in `prototypes/` as prior exploration
+- **Current implementation:** none active. Archived: `prototypes/chaselist/` and `prototypes/inkline/` (both green, from Run 1)
+- **Target user:** TBD by selection — candidates are event/pop-up commerce vendors (permanent-jewelry/lash/tattoo pop-ups; wedding photographers; mobile food vendors) or service SMBs
+- **Active hypothesis:** a customer-facing broadcast artifact for a tight vendor niche can grow hands-off via a peer loop (recipient = ICP). UNKNOWN until a concept is chosen and tested.
+- **Last known good commit:** latest on main (pivot + Run 2 research/shortlist)
+- **Current build status:** not started (re-ideation)
+- **Highest-value next action:** founder picks a Run 2 direction → write its full finalist brief + prototype the peer-loop artifact (single-player value first) → test whether the shared link is compelling enough to switch from static PDFs/Canva
+- **Blockers:** awaiting founder taste selection (question posed 2026-07-11)
 - **Morning report ready:** false
 
 ## Stage definitions
