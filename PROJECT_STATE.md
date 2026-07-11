@@ -10,7 +10,7 @@ Canonical current state. Every session updates this file before ending.
 - **Current implementation:** `prototypes/chaselist/` (22/22 tests green) and `prototypes/inkline/` (18/18 tests green in stub mode; accuracy harness ready); screenshots in each `docs/screenshots/`
 - **Target user:** family historians/genealogists (InkLine); fallback: solo bookkeepers
 - **Active hypothesis:** InkLine real-scan transcription quality clears the trust bar — E-2, UNKNOWN, blocked on key. This is the single gating question.
-- **Last known good commit:** the run-1 closing commit (latest on main)
+- **Last known good commit:** `76ef109` (Stage 5 outcome; both prototypes green). Session lock RELEASED — run 1 ended 2026-07-11; no active session.
 - **Current build status:** both prototypes green (`npm test` in each directory)
 - **Highest-value next action:** obtain `ANTHROPIC_API_KEY` → fetch/verify corpus → run InkLine harness → confirm or reverse D-4; if confirmed, begin Stage 6 loops on InkLine
 - **Blockers:** founder-supplied API key (R-7); corpus image hosts 403'd by network policy (fetch script ready, URLs need verification)
