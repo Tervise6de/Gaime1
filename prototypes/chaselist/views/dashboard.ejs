@@ -1,0 +1,48 @@
+<%- include('partials/head', { title: 'Dashboard' }) %>
+<header class="topbar">
+  <a class="brand" href="/">Chase<span>List</span></a>
+  <nav>
+    <a href="/requests/new">+ New request</a>
+  </nav>
+</header>
+<main class="wrap wrap-wide">
+  <h1>Document requests</h1>
+  <p class="muted">Send a checklist, get files back. No client logins.</p>
+
+  <% if (requests.length === 0) { %>
+    <div class="card" style="text-align:center; padding:2.5rem 1rem;">
+      <p><strong>No requests yet.</strong></p>
+      <p class="muted">Create your first document request list — it takes under a minute.</p>
+      <p><a class="btn" href="/requests/new" data-testid="empty-new-request">Create a request</a></p>
+    </div>
+  <% } %>
+
+  <% for (const r of requests) { %>
+    <a class="req-row" href="/requests/<%= r.id %>" data-testid="request-row">
+      <div class="card">
+        <div class="req-top">
+          <div>
+            <strong><%= r.title %></strong>
+            <span class="muted">· <%= r.client ? r.client.name : 'unknown client' %></span>
+          </div>
+          <div>
+            <% if (r.expired && r.status !== 'complete') { %>
+              <span class="chip chip-expired">expired</span>
+            <% } else { %>
+              <span class="chip chip-<%= r.status %>"><%= r.status %></span>
+            <% } %>
+          </div>
+        </div>
+        <div style="margin-top:0.6rem;">
+          <div class="progress"><span style="width: <%= r.stats.total ? Math.round(100 * r.stats.resolved / r.stats.total) : 0 %>%"></span></div>
+          <div class="progress-label">
+            <%= r.stats.received %>/<%= r.stats.total %> received<% if (r.stats.na) { %> · <%= r.stats.na %> not available<% } %>
+            · sent <%= new Date(r.created_at).toISOString().slice(0,10) %>
+          </div>
+        </div>
+      </div>
+    </a>
+  <% } %>
+  <p class="footer-note">ChaseList prototype — reminders are logged to the outbox, never sent.</p>
+</main>
+<%- include('partials/foot') %>

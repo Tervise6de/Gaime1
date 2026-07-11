@@ -1,0 +1,128 @@
+<%- include('partials/head', { title: request.title }) %>
+<header class="topbar">
+  <a class="brand" href="/">Chase<span>List</span></a>
+  <nav><a href="/requests/new">+ New request</a></nav>
+</header>
+<main class="wrap wrap-wide">
+  <p class="small"><a href="/">&larr; All requests</a></p>
+  <div class="req-top">
+    <h1><%= request.title %></h1>
+    <% if (expired && request.status !== 'complete') { %>
+      <span class="chip chip-expired">expired</span>
+    <% } else { %>
+      <span class="chip chip-<%= request.status %>" data-testid="request-status"><%= request.status %></span>
+    <% } %>
+  </div>
+  <p class="muted">
+    For <strong><%= clientInfo.name %></strong><% if (clientInfo.email) { %> (<%= clientInfo.email %>)<% } %>
+    · sent <%= new Date(request.created_at).toISOString().slice(0,10) %>
+    · link expires <%= new Date(request.expires_at).toISOString().slice(0,10) %>
+  </p>
+  <% if (request.note) { %><p class="muted">“<%= request.note %>”</p><% } %>
+
+  <div class="card">
+    <div class="progress"><span style="width: <%= stats.total ? Math.round(100 * stats.resolved / stats.total) : 0 %>%"></span></div>
+    <div class="progress-label" data-testid="detail-progress">
+      <%= stats.received %>/<%= stats.total %> received<% if (stats.na) { %> · <%= stats.na %> marked not available<% } %>
+    </div>
+    <div class="copy-row">
+      <input type="text" readonly id="share-link" data-testid="share-link" value="<%= recipientUrl %>">
+      <button type="button" class="btn btn-secondary btn-small" id="copy-btn">Copy link</button>
+    </div>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      <a class="btn btn-small" href="/requests/<%= request.id %>/download.zip" data-testid="zip-link">Download all as ZIP</a>
+      <a class="btn btn-secondary btn-small" href="<%= recipientUrl %>" target="_blank" rel="noopener">Preview client view</a>
+    </div>
+  </div>
+
+  <h2>Items</h2>
+  <table class="plain">
+    <thead><tr><th>Item</th><th>Status</th><th>Files / note</th></tr></thead>
+    <tbody>
+      <% for (const item of items) { %>
+        <tr data-testid="detail-item">
+          <td>
+            <strong><%= item.label %></strong>
+            <% if (item.description) { %><div class="muted small"><%= item.description %></div><% } %>
+          </td>
+          <td>
+            <% if (item.status === 'received') { %>
+              <span class="chip chip-received">received</span>
+            <% } else if (item.status === 'not_available') { %>
+              <span class="chip chip-na">not available</span>
+            <% } else { %>
+              <span class="chip chip-pending">pending</span>
+            <% } %>
+          </td>
+          <td>
+            <% if (item.files.length) { %>
+              <ul class="item-files">
+                <% for (const f of item.files) { %>
+                  <li>
+                    <a href="/requests/<%= request.id %>/files/<%= f.id %>" data-testid="file-link"><%= f.original_name %></a>
+                    <span class="muted small">(<%= (f.size / 1024).toFixed(1) %> KB)</span>
+                  </li>
+                <% } %>
+              </ul>
+            <% } else if (item.status === 'not_available') { %>
+              <span class="muted small" data-testid="na-note"><%= item.na_note || 'No note left.' %></span>
+            <% } else { %>
+              <span class="muted small">—</span>
+            <% } %>
+          </td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  <h2>Reminders (outbox log — nothing is actually sent)</h2>
+  <div class="card">
+    <% if (schedule.length) { %>
+      <p class="small muted">Upcoming schedule:</p>
+      <ul class="small">
+        <% for (const s of schedule) { %>
+          <li>
+            Reminder <%= s.n %> — <%= s.at.toISOString().slice(0,10) %>
+            <% if (s.due) { %><span class="chip chip-pending">due</span><% } %>
+          </li>
+        <% } %>
+      </ul>
+    <% } else { %>
+      <p class="small muted" data-testid="no-more-reminders">No further reminders scheduled (all items resolved, link expired, or max reminders reached).</p>
+    <% } %>
+
+    <% if (outbox.length) { %>
+      <p class="small muted">Logged so far:</p>
+      <% for (const o of outbox) { %>
+        <details style="margin:0.4rem 0;">
+          <summary class="small"><strong><%= o.kind %></strong> · scheduled <%= o.scheduled_for.slice(0,10) %> · logged <%= o.created_at.slice(0,10) %></summary>
+          <div class="outbox-body"><%= o.body %></div>
+        </details>
+      <% } %>
+    <% } else { %>
+      <p class="small muted">Nothing logged yet.</p>
+    <% } %>
+    <form method="post" action="/tick" style="margin-top:0.5rem;">
+      <button class="btn btn-quiet btn-small" type="submit">Run reminder tick now</button>
+    </form>
+  </div>
+</main>
+<script>
+  document.getElementById('copy-btn').addEventListener('click', function () {
+    var input = document.getElementById('share-link');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    var done = function () {
+      var btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(function () { btn.textContent = 'Copy link'; }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(input.value).then(done, function () { document.execCommand('copy'); done(); });
+    } else {
+      document.execCommand('copy');
+      done();
+    }
+  });
+</script>
+<%- include('partials/foot') %>

@@ -1,0 +1,24 @@
+{
+  "name": "chaselist",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ChaseList prototype - document request lists for bookkeepers, fulfilled by clients via tokenized links",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test:unit": "node --test 'test/unit/*.test.js'",
+    "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers playwright test",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "better-sqlite3": "^11.10.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0"
+  }
+}

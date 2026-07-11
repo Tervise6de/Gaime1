@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+  <title>InkLine — read the handwriting your family left behind</title>
+</head>
+<body>
+  <main class="wrap">
+    <header class="site-header">
+      <a class="brand" href="/">Ink<span>Line</span></a>
+    </header>
+
+    <% if (isStub) { %><%- include('partials/stub-banner') %><% } %>
+
+    <section class="hero">
+      <h1>Read the handwriting your family left behind.</h1>
+      <p class="lede">
+        Upload a photo or scan of a letter, diary page, or record. InkLine
+        transcribes it side by side with the original and honestly flags every
+        word it isn't sure about.
+      </p>
+    </section>
+
+    <% if (error) { %>
+      <div class="error-banner" data-testid="upload-error" role="alert"><%= error %></div>
+    <% } %>
+
+    <form class="upload-form" action="/upload" method="post" enctype="multipart/form-data" data-testid="upload-form">
+      <% if (collectionToken) { %>
+        <input type="hidden" name="collection_token" value="<%= collectionToken %>">
+      <% } %>
+      <label id="dropzone" class="dropzone" for="file-input">
+        <span class="dz-icon" aria-hidden="true">&#128220;</span>
+        <span class="dz-text"><strong>Drag &amp; drop</strong> a page image here, or
+          <span class="dz-browse">browse</span></span>
+        <span class="dz-hint">JPG, PNG, or WEBP &middot; up to 15MB &middot; export PDF pages as images</span>
+        <span class="dz-filename" id="dz-filename" data-testid="dz-filename"></span>
+        <input id="file-input" type="file" name="document" accept="image/jpeg,image/png,image/webp" required>
+      </label>
+      <button class="btn btn-primary" type="submit" data-testid="transcribe-btn">Transcribe this page</button>
+      <p class="fineprint">Your first page is free. Prototype note: only public-domain documents, please.</p>
+    </form>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

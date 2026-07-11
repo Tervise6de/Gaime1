@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+  <title><%= doc.title %> — InkLine</title>
+</head>
+<body>
+  <main class="wrap wrap-wide">
+    <header class="site-header">
+      <a class="brand" href="/">Ink<span>Line</span></a>
+      <% if (collection) { %>
+        <nav><a class="collection-link" data-testid="collection-link" href="/c/<%= collection.token %>">View collection &rarr;</a></nav>
+      <% } %>
+    </header>
+
+    <% if (isStubResult) { %><%- include('partials/stub-banner') %><% } %>
+
+    <% warnings.filter(w => !w.startsWith('[STUB TRANSCRIPTION')).forEach(function (w) { %>
+      <div class="warning-banner" role="note"><%= w %></div>
+    <% }) %>
+
+    <section class="artifact-head">
+      <form class="title-form" action="/a/<%= doc.token %>/title" method="post">
+        <input class="title-input" data-testid="title-input" type="text" name="title"
+               value="<%= doc.title %>" maxlength="200" aria-label="Document title">
+        <button class="btn btn-quiet" type="submit">Save title</button>
+      </form>
+      <p class="artifact-meta">
+        Transcribed <%= doc.created_at %> UTC &middot; provider:
+        <code data-testid="provider"><%= doc.provider %></code>
+      </p>
+    </section>
+
+    <% if (doc.status !== 'ok') { %>
+      <div class="error-banner" data-testid="failed-banner" role="alert">
+        Transcription failed for this page — nothing was invented. See warnings above.
+      </div>
+    <% } %>
+
+    <section class="side-by-side">
+      <figure class="original-pane">
+        <img src="/a/<%= doc.token %>/image" alt="Original scan of <%= doc.title %>">
+        <figcaption>Original</figcaption>
+      </figure>
+
+      <div class="transcription-pane" data-testid="transcription">
+        <div class="pane-caption">Transcription
+          <span class="legend"><span class="legend-swatch"></span> = uncertain word (hover for details)</span>
+        </div>
+        <div class="transcription-text">
+          <% lines.forEach(function (line) { %>
+            <p class="t-line"><% line.words.forEach(function (w, i) { %><% if (i > 0) { %> <% } %><% if (w.confidence < uncertainThreshold) { %><span class="word uncertain" data-testid="uncertain-word" tabindex="0" title="uncertain — confidence <%= Math.round(w.confidence * 100) %>%"><%= w.text %></span><% } else { %><span class="word"><%= w.text %></span><% } %><% }) %></p>
+          <% }) %>
+          <% if (!lines.length) { %>
+            <p class="t-empty">No transcription available for this page.</p>
+          <% } %>
+        </div>
+      </div>
+    </section>
+
+    <section class="share-box">
+      <h2>Share this artifact</h2>
+      <p>Anyone with this link can view the page — no account needed.</p>
+      <div class="share-row">
+        <input class="share-url" data-testid="share-url" type="text" readonly
+               value="" id="share-url" aria-label="Shareable link">
+        <button class="btn btn-quiet" id="copy-link" data-testid="copy-link" type="button">Copy link</button>
+      </div>
+    </section>
+
+    <section class="cta-box" data-testid="cta">
+      <h2>Have a family letter you can't read?</h2>
+      <p>Transcribe your first page free — it takes about a minute.</p>
+      <a class="btn btn-primary" href="/">Transcribe one of your own</a>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

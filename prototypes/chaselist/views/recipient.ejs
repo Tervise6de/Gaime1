@@ -1,0 +1,101 @@
+<%- include('partials/head', { title: request.title, bodyClass: 'recipient' }) %>
+<main class="wrap">
+  <div class="sticky-progress">
+    <div class="progress"><span style="width: <%= stats.total ? Math.round(100 * stats.resolved / stats.total) : 0 %>%"></span></div>
+    <div class="progress-label" data-testid="recipient-progress"><%= stats.resolved %> of <%= stats.total %> done</div>
+  </div>
+
+  <h1><%= request.title %></h1>
+  <p class="muted">
+    Requested by your bookkeeper for <strong><%= clientInfo.name %></strong>.
+    No account needed — just add each document below.
+  </p>
+  <% if (request.note) { %><p>“<%= request.note %>”</p><% } %>
+
+  <% if (err) { %>
+    <div class="banner banner-error" data-testid="upload-error">
+      <% if (err === 'too-large') { %>That file is too large — the limit is 10 MB per file.<% }
+         else if (err === 'bad-type') { %>That file type isn't accepted. Please upload a photo (JPG/PNG/WebP), PDF, CSV, or XLSX.<% }
+         else if (err === 'rate') { %>Too many uploads in a short time. Please wait a few minutes and try again.<% }
+         else if (err === 'no-file') { %>No file was selected — please try again.<% }
+         else { %>Something went wrong with that upload. Please try again.<% } %>
+    </div>
+  <% } %>
+
+  <ul class="item-list">
+    <% for (const item of items) { %>
+      <li class="item <%= item.status === 'received' ? 'done' : (item.status === 'not_available' ? 'na' : '') %>" id="item-<%= item.id %>" data-testid="recipient-item" data-status="<%= item.status %>">
+        <div class="item-head">
+          <span class="item-label"><%= item.label %></span>
+          <% if (item.status === 'received') { %>
+            <span class="chip chip-received">✓ received</span>
+          <% } else if (item.status === 'not_available') { %>
+            <span class="chip chip-na">not available</span>
+          <% } else { %>
+            <span class="chip chip-pending">needed</span>
+          <% } %>
+        </div>
+        <% if (item.description) { %><p class="item-desc"><%= item.description %></p><% } %>
+
+        <% if (item.files.length) { %>
+          <ul class="item-files">
+            <% for (const f of item.files) { %><li>✓ <%= f.original_name %></li><% } %>
+          </ul>
+        <% } %>
+
+        <% if (item.status === 'not_available') { %>
+          <% if (item.na_note) { %><p class="muted small">Your note: “<%= item.na_note %>”</p><% } %>
+          <form method="post" action="/r/<%= request.token %>/items/<%= item.id %>/reopen">
+            <button type="submit" class="btn btn-quiet btn-small">Undo — I can add this after all</button>
+          </form>
+        <% } else { %>
+          <div class="item-actions">
+            <form method="post" action="/r/<%= request.token %>/items/<%= item.id %>/upload" enctype="multipart/form-data">
+              <label class="btn filebtn <%= item.status === 'received' ? 'btn-quiet' : 'btn-secondary' %>">
+                📷 Take photo
+                <input type="file" name="file" accept="image/*" capture="environment" data-autosubmit>
+              </label>
+            </form>
+            <form method="post" action="/r/<%= request.token %>/items/<%= item.id %>/upload" enctype="multipart/form-data">
+              <label class="btn filebtn <%= item.status === 'received' ? 'btn-quiet' : '' %>">
+                📎 <%= item.status === 'received' ? 'Add another file' : 'Choose file' %>
+                <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp,.pdf,.csv,.xlsx,image/jpeg,image/png,image/webp,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-autosubmit data-testid="file-input-<%= item.id %>">
+              </label>
+            </form>
+          </div>
+          <% if (item.status === 'pending') { %>
+            <details class="na-details">
+              <summary data-testid="na-toggle-<%= item.id %>">I don't have this</summary>
+              <form method="post" action="/r/<%= request.token %>/items/<%= item.id %>/na">
+                <textarea name="note" placeholder="Optional: tell your bookkeeper why (e.g. account closed in March)" data-testid="na-note-<%= item.id %>"></textarea>
+                <button type="submit" class="btn btn-quiet" data-testid="na-submit-<%= item.id %>">Mark as “don't have it”</button>
+              </form>
+            </details>
+          <% } %>
+        <% } %>
+      </li>
+    <% } %>
+  </ul>
+
+  <p class="footer-note">
+    Files go straight to your bookkeeper. Max 10 MB per file · photos, PDF, CSV, XLSX.<br>
+    This secure link expires <%= new Date(request.expires_at).toISOString().slice(0,10) %>.
+  </p>
+</main>
+<script>
+  // Auto-submit on file pick: first upload = tap button, tap file. Done.
+  document.querySelectorAll('input[data-autosubmit]').forEach(function (input) {
+    input.addEventListener('change', function () {
+      if (!input.files || input.files.length === 0) return;
+      var label = input.closest('label');
+      if (label) {
+        label.style.opacity = '0.6';
+        label.childNodes.forEach(function (n) {
+          if (n.nodeType === 3 && n.textContent.trim()) n.textContent = ' Uploading… ';
+        });
+      }
+      input.form.submit();
+    });
+  });
+</script>
+<%- include('partials/foot') %>

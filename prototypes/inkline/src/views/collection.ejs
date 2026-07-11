@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+  <title><%= collection.title %> — InkLine</title>
+</head>
+<body>
+  <main class="wrap">
+    <header class="site-header">
+      <a class="brand" href="/">Ink<span>Line</span></a>
+    </header>
+
+    <% if (isStub) { %><%- include('partials/stub-banner') %><% } %>
+
+    <section class="hero hero-small">
+      <h1 data-testid="collection-title"><%= collection.title %></h1>
+      <p class="lede"><%= docs.length %> document<%= docs.length === 1 ? '' : 's' %> in this collection. Anyone with this link can view it.</p>
+    </section>
+
+    <ul class="doc-list" data-testid="doc-list">
+      <% docs.forEach(function (d) { %>
+        <li class="doc-item">
+          <a href="/a/<%= d.token %>">
+            <img class="doc-thumb" src="/a/<%= d.token %>/image" alt="" loading="lazy">
+            <span class="doc-title"><%= d.title %></span>
+            <span class="doc-meta"><%= d.created_at %> UTC &middot; <%= d.provider %></span>
+          </a>
+        </li>
+      <% }) %>
+      <% if (!docs.length) { %>
+        <li class="doc-empty">Nothing here yet.</li>
+      <% } %>
+    </ul>
+
+    <section class="upload-more">
+      <h2>Add another page to this collection</h2>
+      <form class="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="collection_token" value="<%= collection.token %>">
+        <input type="file" name="document" accept="image/jpeg,image/png,image/webp" required>
+        <button class="btn btn-primary" type="submit">Transcribe</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

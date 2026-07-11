@@ -1,0 +1,40 @@
+<%- include('partials/head', { title: 'All done', bodyClass: 'recipient' }) %>
+<main class="wrap">
+  <div class="confirm-hero" data-testid="confirmation">
+    <div class="bigcheck">✓</div>
+    <h1>All done — thank you!</h1>
+    <p class="muted" data-testid="confirmation-summary">
+      <%= stats.total %> of <%= stats.total %> items resolved for “<%= request.title %>”:
+      <%= stats.received %> file item<%= stats.received === 1 ? '' : 's' %> uploaded<% if (stats.na) { %>,
+      <%= stats.na %> marked not available<% } %>.
+    </p>
+    <p class="muted small">Your bookkeeper has been updated. You can close this page.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Summary</h2>
+    <ul class="item-files" style="padding-left:1.1rem;">
+      <% for (const item of items) { %>
+        <li>
+          <% if (item.status === 'received') { %>✓<% } else { %>–<% } %>
+          <%= item.label %>
+          <% if (item.status === 'not_available') { %>
+            <span class="muted small">(not available<% if (item.na_note) { %>: “<%= item.na_note %>”<% } %>)</span>
+          <% } else if (item.files.length) { %>
+            <span class="muted small">(<%= item.files.length %> file<%= item.files.length === 1 ? '' : 's' %>)</span>
+          <% } %>
+        </li>
+      <% } %>
+    </ul>
+    <p class="muted small">Need to change something? <a href="/r/<%= request.token %>?edit=1">The link stays open until <%= new Date(request.expires_at).toISOString().slice(0,10) %></a>.</p>
+  </div>
+
+  <div class="cta-block" data-testid="conversion-cta">
+    <h2>Need to collect documents from your own clients?</h2>
+    <p class="muted">This checklist took your bookkeeper about a minute to make.</p>
+    <a class="btn" href="/requests/new" data-testid="cta-link">Create your first request list</a>
+  </div>
+
+  <p class="footer-note">Powered by ChaseList.</p>
+</main>
+<%- include('partials/foot') %>

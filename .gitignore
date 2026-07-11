@@ -1,0 +1,8 @@
+node_modules/
+*.sqlite
+*.sqlite3
+.env
+prototypes/*/data/
+prototypes/*/uploads/
+test-results/
+playwright-report/

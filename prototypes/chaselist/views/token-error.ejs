@@ -1,0 +1,29 @@
+<%- include('partials/head', { title: kind === 'expired' ? 'Link expired' : 'Link not found', bodyClass: 'recipient' }) %>
+<main class="wrap">
+  <div class="confirm-hero" data-testid="token-error">
+    <div class="bigcheck" style="background: var(--warn-bg); color: var(--warn);">!</div>
+    <% if (kind === 'expired') { %>
+      <h1>This link has expired</h1>
+      <p class="muted">
+        For your security, document upload links only work for a limited time —
+        and this one has run out.
+      </p>
+      <p class="muted">
+        No problem though: just ask your bookkeeper to send you a fresh link
+        and you can pick up right where you left off.
+      </p>
+    <% } else { %>
+      <h1>We couldn't find that link</h1>
+      <p class="muted">
+        This upload link doesn't look right — it may have been copied
+        incompletely or mistyped.
+      </p>
+      <p class="muted">
+        Try opening the link from the original message again, or ask your
+        bookkeeper to resend it.
+      </p>
+    <% } %>
+  </div>
+  <p class="footer-note">Powered by ChaseList.</p>
+</main>
+<%- include('partials/foot') %>

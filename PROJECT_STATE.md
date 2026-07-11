@@ -4,16 +4,16 @@ Canonical current state. Every session updates this file before ending.
 
 ## Current state
 
-- **Current stage:** `TWO_FINALISTS` → entering `DUAL_PROTOTYPES` (run 1 in progress, 2026-07-11; other sessions should avoid competing writes)
-- **Current product:** none selected — two finalists: C-1 ChaseList (A), C-4 InkLine (B); see CONCEPTS.md finalist briefs
+- **Current stage:** `DUAL_PROTOTYPES` — both prototypes built and verified (run 1, 2026-07-11). Stage 5 comparison is partially blocked: InkLine's central quality experiment (E-2) needs a founder-supplied API key.
+- **Current product:** none selected — finalists C-1 ChaseList and C-4 InkLine, both prototyped; briefs + success/failure criteria in CONCEPTS.md
 - **Fallback product:** decided at Stage 5 (loser becomes fallback); strongest rejected concept: C-2 DrawDesk
-- **Current implementation:** starting `prototypes/chaselist/` (Node 22 + Express + SQLite + EJS)
+- **Current implementation:** `prototypes/chaselist/` (22/22 tests green, screenshots in docs/screenshots/) and `prototypes/inkline/` (18/18 tests green in stub mode, accuracy harness ready)
 - **Target user:** A: solo bookkeepers/small accounting firms; B: family historians/genealogists
-- **Active hypothesis:** A: recipient friction is the fixable half of the document-chase problem; B: vision-LLM transcription quality on realistic scans clears the trust bar (CER + hallucination harness)
-- **Last known good commit:** Stage 3 decision commit (this one)
-- **Current build status:** prototypes not yet building — scaffolding next
-- **Highest-value next action:** build ChaseList two-sided loop with e2e tests; then InkLine stub-mode pipeline + CER harness
-- **Blockers:** InkLine real-model runs need a founder-supplied AI API key (R-7) — stub mode proceeds regardless
+- **Active hypothesis:** A: recipient friction is the fixable half of the document-chase problem (E-1: technical half VERIFIED; behavioral half untestable internally); B: real-scan transcription quality clears the trust bar (E-2: UNKNOWN, blocked on key)
+- **Last known good commit:** the Stage 4 dual-prototypes commit (this one)
+- **Current build status:** both prototypes green (`npm test` in each directory)
+- **Highest-value next action:** Stage 5 comparison — ChaseList differentiation audit vs Content Snare/Keeper (its pre-registered failure criterion) + run InkLine real harness the moment a key exists; then pick winner
+- **Blockers:** InkLine real-model verification needs `ANTHROPIC_API_KEY` (R-7); corpus image hosts blocked by network policy (fetch script ready)
 - **Morning report ready:** false
 
 ## Stage definitions

@@ -1,0 +1,126 @@
+{
+  "note": "Public-domain handwritten documents with published transcriptions. Images could NOT be downloaded in the build environment (network policy blocks wikimedia.org, loc.gov, wikisource.org, archive.org - only package registries are reachable). Run harness/fetch-corpus.sh on a machine with normal internet access to populate image files. Each entry's ground_truth file must be filled from the published transcription at transcription_source (first page/excerpt matching the downloaded image). Entries marked ground_truth_included=true ship with a ground-truth excerpt already in this repo, sourced from the listed public-domain transcription.",
+  "documents": [
+    {
+      "id": "decl-independence",
+      "title": "Declaration of Independence (engrossed copy, 1776)",
+      "difficulty": "clean formal hand",
+      "image": "decl-independence.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8f/United_States_Declaration_of_Independence.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:United_States_Declaration_of_Independence.jpg",
+      "transcription_source": "https://www.archives.gov/founding-docs/declaration-transcript",
+      "ground_truth": "decl-independence.txt",
+      "ground_truth_included": true
+    },
+    {
+      "id": "gettysburg-nicolay",
+      "title": "Gettysburg Address, Nicolay copy (Lincoln, 1863), page 1",
+      "difficulty": "clean cursive, some corrections",
+      "image": "gettysburg-nicolay-p1.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Gettysburg_Address_%28Nicolay_copy%29_page_1.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Gettysburg_Address_(Nicolay_copy)_page_1.jpg",
+      "transcription_source": "https://www.loc.gov/exhibits/gettysburg-address/ext/trans-nicolay-copy.html",
+      "ground_truth": "gettysburg-nicolay-p1.txt",
+      "ground_truth_included": true
+    },
+    {
+      "id": "bixby-letter",
+      "title": "Bixby letter facsimile (attributed to Lincoln, 1864)",
+      "difficulty": "clean cursive",
+      "image": "bixby-letter.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Bixby_letter_-_Michael_Burlingame.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Bixby_letter_-_Michael_Burlingame.jpg",
+      "transcription_source": "https://en.wikisource.org/wiki/Bixby_letter",
+      "ground_truth": "bixby-letter.txt",
+      "ground_truth_included": true
+    },
+    {
+      "id": "us-constitution-p1",
+      "title": "U.S. Constitution, page 1 (1787)",
+      "difficulty": "clean formal hand, dense",
+      "image": "constitution-p1.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Constitution_of_the_United_States%2C_page_1.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Constitution_of_the_United_States,_page_1.jpg",
+      "transcription_source": "https://www.archives.gov/founding-docs/constitution-transcript",
+      "ground_truth": "constitution-p1.txt",
+      "ground_truth_included": true
+    },
+    {
+      "id": "emancipation-p1",
+      "title": "Emancipation Proclamation, page 1 (1863)",
+      "difficulty": "clerical hand, aged paper",
+      "image": "emancipation-p1.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Emancipation_Proclamation_page_1.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Emancipation_Proclamation_page_1.jpg",
+      "transcription_source": "https://www.archives.gov/exhibits/featured-documents/emancipation-proclamation/transcript.html",
+      "ground_truth": "emancipation-p1.txt",
+      "ground_truth_included": false
+    },
+    {
+      "id": "washington-farewell-p1",
+      "title": "George Washington's Farewell Address draft, page 1 (1796)",
+      "difficulty": "hard: dense cursive with edits",
+      "image": "washington-farewell-p1.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Washington%27s_Farewell_Address%2C_page_1.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/Category:Washington%27s_Farewell_Address",
+      "transcription_source": "https://en.wikisource.org/wiki/Washington%27s_Farewell_Address",
+      "ground_truth": "washington-farewell-p1.txt",
+      "ground_truth_included": false
+    },
+    {
+      "id": "magna-carta-1215",
+      "title": "Magna Carta, 1215 exemplification (Latin)",
+      "difficulty": "hard: medieval court hand, heavy abbreviation",
+      "image": "magna-carta-1215.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Magna_Carta_%28British_Library_Cotton_MS_Augustus_II.106%29.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Magna_Carta_(British_Library_Cotton_MS_Augustus_II.106).jpg",
+      "transcription_source": "https://www.bl.uk/magna-carta/articles/magna-carta-english-translation",
+      "ground_truth": "magna-carta-1215.txt",
+      "ground_truth_included": false
+    },
+    {
+      "id": "census-1870-example",
+      "title": "1870 U.S. Federal Census page (population schedule)",
+      "difficulty": "hard: tabular clerk hand, degraded scan",
+      "image": "census-1870.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/1870_census_Chester_Arthur.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:1870_census_Chester_Arthur.jpg",
+      "transcription_source": "https://www.familysearch.org/ark:/61903/1:1:MX7T-77Y (indexed transcription)",
+      "ground_truth": "census-1870.txt",
+      "ground_truth_included": false
+    },
+    {
+      "id": "anne-frank-style-degraded",
+      "title": "WWI soldier's letter (degraded, faded ink)",
+      "difficulty": "hard: faded ink, informal hand",
+      "image": "wwi-letter.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/WWI_letter_from_soldier.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/Category:World_War_I_letters",
+      "transcription_source": "Use the transcription published on the chosen Commons file page; only keep this entry if one exists.",
+      "ground_truth": "wwi-letter.txt",
+      "ground_truth_included": false
+    },
+    {
+      "id": "lincoln-2nd-inaugural",
+      "title": "Lincoln's Second Inaugural Address manuscript, page 1 (1865)",
+      "difficulty": "medium: cursive, ink show-through",
+      "image": "lincoln-2nd-inaugural-p1.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Lincoln%27s_Second_Inaugural_Address_manuscript.jpg",
+      "source_page": "https://www.loc.gov/item/mal4361300/",
+      "transcription_source": "https://en.wikisource.org/wiki/Abraham_Lincoln%27s_second_inaugural_address",
+      "ground_truth": "lincoln-2nd-inaugural-p1.txt",
+      "ground_truth_included": false
+    },
+    {
+      "id": "mayflower-compact",
+      "title": "Mayflower Compact (Bradford's transcription, c. 1630)",
+      "difficulty": "medium: 17th-century secretary hand",
+      "image": "mayflower-compact.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/The_Mayflower_Compact_1620_cph.3g07155.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:The_Mayflower_Compact_1620_cph.3g07155.jpg",
+      "transcription_source": "https://en.wikisource.org/wiki/Mayflower_Compact",
+      "ground_truth": "mayflower-compact.txt",
+      "ground_truth_included": false
+    }
+  ]
+}

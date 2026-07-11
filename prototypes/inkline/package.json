@@ -1,0 +1,25 @@
+{
+  "name": "inkline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "InkLine prototype - handwritten historical document transcription with per-word uncertainty",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test:unit": "node --test test/unit/*.test.js",
+    "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers playwright test",
+    "test": "npm run test:unit && npm run test:e2e",
+    "harness": "node harness/run.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "better-sqlite3": "^12.0.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "multer": "^2.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}

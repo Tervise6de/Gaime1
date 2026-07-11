@@ -73,15 +73,21 @@ Remote sessions may overlap. Before modifying anything:
 
 ## Build, run and test commands
 
-No technology stack selected yet. Once selected, record exact commands here:
+Two Stage-4 prototypes (Node 22, zero required keys). For each of
+`prototypes/chaselist/` and `prototypes/inkline/`:
 
 ```
-# Setup:   (to be added after stack selection)
-# Run:     (to be added after stack selection)
-# Test:    (to be added after stack selection)
+npm install          # once per prototype directory
+npm run dev          # serve on PORT (default 3000)
+npm test             # unit (node:test) + e2e (Playwright)
 ```
 
-Until then, `HANDOFF.md` carries any interim commands.
+InkLine extras: `npm run harness` (accuracy harness; STUB mode without a
+key). Real transcription needs `.env` with `ANTHROPIC_API_KEY` +
+`TRANSCRIBE_PROVIDER=anthropic` (never commit keys). Playwright uses the
+preinstalled Chromium: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers` is set in
+npm scripts — never run `playwright install`; keep `@playwright/test`
+pinned (chromium-1194).
 
 ## Hard limits (never violate)
 

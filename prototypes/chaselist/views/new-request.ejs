@@ -1,0 +1,105 @@
+<%- include('partials/head', { title: 'New request' }) %>
+<header class="topbar">
+  <a class="brand" href="/">Chase<span>List</span></a>
+</header>
+<main class="wrap">
+  <h1>New document request</h1>
+  <form method="post" action="/requests" id="new-request-form">
+    <div class="card">
+      <h2 style="margin-top:0;">Client</h2>
+      <label class="field">Existing client
+        <select name="client_id" id="client-select">
+          <option value="new">— New client —</option>
+          <% for (const c of clients) { %>
+            <option value="<%= c.id %>"><%= c.name %><% if (c.email) { %> (<%= c.email %>)<% } %></option>
+          <% } %>
+        </select>
+      </label>
+      <div id="new-client-fields">
+        <label class="field">Client name
+          <input type="text" name="client_name" placeholder="Acme Plumbing LLC">
+        </label>
+        <label class="field">Client email
+          <input type="email" name="client_email" placeholder="owner@acmeplumbing.com">
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Request</h2>
+      <label class="field">Title
+        <input type="text" name="title" required placeholder="March 2026 monthly close">
+      </label>
+      <label class="field">Note to client (optional)
+        <textarea name="note" placeholder="Anything you want to say at the top of their checklist."></textarea>
+      </label>
+      <label class="field">Link expires in
+        <select name="expires_days">
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30" selected>30 days</option>
+          <option value="60">60 days</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Items</h2>
+      <p class="muted small">Start from a template, then edit — or add items by hand.</p>
+      <div class="tpl-buttons">
+        <% for (const t of templates) { %>
+          <button type="button" class="btn btn-secondary btn-small tpl-btn" data-tpl="<%= t.id %>" data-testid="tpl-<%= t.id %>">
+            + <%= t.name %> (<%= t.items.length %>)
+          </button>
+        <% } %>
+      </div>
+      <div id="items"></div>
+      <button type="button" class="btn btn-quiet btn-small" id="add-item">+ Add item</button>
+    </div>
+
+    <button type="submit" class="btn btn-block" data-testid="create-request">Create request &amp; get link</button>
+  </form>
+</main>
+
+<script>
+  var TEMPLATES = <%- JSON.stringify(templates) %>;
+  var itemsEl = document.getElementById('items');
+
+  function addRow(label, description) {
+    var row = document.createElement('div');
+    row.className = 'item-editor-row';
+    row.innerHTML =
+      '<input type="text" name="item_label" placeholder="Item (e.g. Bank statement)" value="">' +
+      '<input type="text" name="item_description" placeholder="Details for the client (optional)" value="">' +
+      '<button type="button" class="btn btn-quiet btn-small rm" aria-label="Remove item">✕</button>';
+    row.querySelector('[name=item_label]').value = label || '';
+    row.querySelector('[name=item_description]').value = description || '';
+    row.querySelector('.rm').addEventListener('click', function () { row.remove(); });
+    itemsEl.appendChild(row);
+  }
+
+  document.getElementById('add-item').addEventListener('click', function () { addRow('', ''); });
+
+  document.querySelectorAll('.tpl-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var tpl = TEMPLATES.find(function (t) { return t.id === btn.dataset.tpl; });
+      if (!tpl) return;
+      // drop trailing empty rows before appending
+      itemsEl.querySelectorAll('.item-editor-row').forEach(function (row) {
+        if (!row.querySelector('[name=item_label]').value.trim()) row.remove();
+      });
+      tpl.items.forEach(function (it) { addRow(it.label, it.description); });
+    });
+  });
+
+  var clientSelect = document.getElementById('client-select');
+  var newClientFields = document.getElementById('new-client-fields');
+  function toggleClientFields() {
+    newClientFields.style.display = clientSelect.value === 'new' ? '' : 'none';
+  }
+  clientSelect.addEventListener('change', toggleClientFields);
+  toggleClientFields();
+
+  addRow('', '');
+</script>
+<%- include('partials/foot') %>
