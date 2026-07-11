@@ -110,4 +110,40 @@ reversing any earlier decision.
   founder-level evidence that Content Snare churners leave for reasons
   ChaseList fixes; head-to-head recipient-flow measurements favoring
   ChaseList decisively.
-- Status: ACTIVE (provisional)
+- Status: SUPERSEDED by D-5 (founder-directed pivot)
+
+## D-5: Founder-directed pivot — restart ideation under a sharp new objective function
+
+- Date / session: 2026-07-11, run 2 (founder message)
+- Decision: FORMAL PIVOT at founder direction. The run-1 finalists
+  (ChaseList, InkLine) and the whole run-1 portfolio are shelved — not as
+  failures of execution but because they miss the founder's real objective:
+  products that are *interesting*, grow with **zero founder marketing**, and
+  can plausibly reach **$1–2k/mo within 3 months**. Run-1 concepts were B2B
+  vitamins with hand-waved distribution — wrong shape.
+- New objective function (founder answers, this session):
+  1. Distribution = **hands-off** — the product must spread through its own
+     outputs; founder will not promote it.
+  2. Form factor = **standalone web app** (not marketplace-native).
+  3. Domain edge = **commerce / small business / marketing**.
+- Binding design rule derived from the above: *the core value delivery must
+  itself be a customer-facing broadcast* — using the tool for a selfish
+  reason automatically exposes it to the user's customers (Calendly /
+  Typeform / Linktree / Carrd / Beacons badge-and-embed loop). This kills
+  all private-utility / dashboard / back-office concepts.
+- Filters for the new portfolio: customer-facing or public output;
+  intrinsic "made-with"/embed/recipient loop; paid boundary AT the value
+  moment (remove badge / volume / pro — not freemium hope); impulse price
+  ($9–49/mo or one-time); fast time-to-first-value AND time-to-first-
+  broadcast; genuinely interesting.
+- Alternatives considered: proceeding with InkLine (rejected — founder finds
+  it uncompelling and it fails the hands-off/3-month bar); marketplace-native
+  (rejected — founder prefers standalone).
+- Evidence / honesty note: hands-off + standalone + 3-month + no-ad is the
+  hardest distribution profile; base rate ~70% of micro-SaaS never reach
+  $1k MRR (WEAK PROXY, aggregators, run-1 research). This pivot targets a
+  rare shape and will likely need iteration. Old prototypes remain in
+  `prototypes/` as prior exploration; DrawDesk (C-2) remains a separate
+  reserve path but does NOT fit the hands-off rule and is deprioritized.
+- What could invalidate this decision: founder reverses direction.
+- Status: ACTIVE
