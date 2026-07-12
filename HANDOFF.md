@@ -4,68 +4,67 @@ Compact snapshot for the next session. **Overwrite this file entirely at the
 end of every session — do not append history.**
 
 ## Current stage
-`PROTOTYPE_COMPARISON` with a provisional outcome (D-4). Run 1 (2026-07-11)
-completed Stages 1–4 and most of Stage 5.
+`WINNER_DEVELOPMENT` (run 2, after founder pivot D-5). Poppin (R2-1) is
+chosen and prototyped; its core artifact + waitlist are verified (E-4).
 
 ## Current product
-**InkLine (C-4) — presumptive winner, NOT confirmed.** Confirmation gate:
-InkLine must pass its pre-registered quality harness (E-2: mean CER ≲10%,
-near-zero hallucination proxy on a real mixed-difficulty corpus). Do not
-start Stage 6 feature work before running that gate.
-**ChaseList (C-1) — presumptive fallback:** technically excellent (22/22
-tests) but E-3 audit showed its differentiators are Content Snare's exact
-documented features at the same $29 floor — pre-registered failure
-criterion substantially triggered.
+**Poppin** — a public pop-up page + live walk-in waitlist for pop-up service
+artists (lead persona: permanent-jewelry welders; adjacent: lash / brow /
+piercing / tattoo-flash). Distribution bet: the artist makes a page they're
+proud to share → the host venue and walk-ins see it → a "Made with Poppin"
+footer converts peer artists (recipient = ICP peer loop).
+
+## Why this product (pivot context)
+Founder rejected the Run-1 finalists (ChaseList/InkLine) as uninteresting and
+off-target, and set a sharp new goal: interesting, grows HANDS-OFF, standalone
+web app, commerce/small-biz, ~$1–2k/mo in ~3 months (D-5). Run-2 research
+favored *peer loops where the recipient is the ICP*; Poppin (D-6) is the pick.
 
 ## Target user
-InkLine: family historians/genealogists. Fallback: solo bookkeepers.
+Pop-up service artists — permanent jewelry (lead), lash/brow/piercing/
+tattoo-flash (adjacent).
 
 ## Active hypothesis
-E-2 — real-scan transcription quality clears the trust bar. UNKNOWN,
-blocked on a founder-supplied `ANTHROPIC_API_KEY`. This is the single
-question that decides everything downstream.
+Artists will actually create and share these pages, igniting a peer loop.
+**ASSUMPTION — not tested.** E-4 only verified the *precondition* (a
+proud-to-share page + a working live waitlist are buildable and polished).
+Whether artists share it, and whether they pay, are external questions.
 
-## What changed
-Run 1: research (USER_RESEARCH.md) → 12 concepts + six-specialist
-evaluation (CONCEPTS.md) → finalists (D-2, D-3) → both prototypes built,
-independently verified, screenshots captured → incumbent audit (E-3)
-demoted ChaseList → provisional winner decision (D-4).
+## What changed this session
+Formal pivot (D-5) → Run-2 hands-off-commerce research (USER_RESEARCH.md) →
+filtered shortlist R2-1..R2-4 (CONCEPTS.md) → picked R2-1 (D-6) → built &
+independently verified the Poppin prototype (E-4) with mobile screenshots.
 
 ## Current implementation status
-- `prototypes/inkline/` — GREEN stub mode (15 unit + 3 e2e): upload →
-  side-by-side artifact page (uncertainty highlighting, [?] placeholders,
-  prominent STUB banner) → public share URL → collection. CER/WER/
-  hallucination harness ready (`npm run harness`); Anthropic provider code
-  present but NEVER exercised against the live API. Corpus: manifest of 11
-  public-domain docs + fetch script; image hosts 403'd here; 4 ground-truth
-  excerpts shipped (must be trimmed to page scope before trusting CER).
-- `prototypes/chaselist/` — GREEN (17 unit + 5 e2e): full two-sided loop,
-  2-tap recipient upload, reminder outbox (log only), ZIP download,
-  expiring tokens/limits/rate-limit. Preserved as fallback; no further
-  work planned unless D-4 reverses.
+`prototypes/poppin/` — GREEN: 30 unit + 10 Playwright e2e. Full flow: create
+page → catalog + event → polished public event page (QR, join form, footer)
+→ 2-tap walk-in join → live "you're #N" confirmation → owner waitlist board
+(notify/served/no-show, party-size math, outbox log — nothing actually sent).
+Zero API keys. Screenshots in `prototypes/poppin/docs/screenshots/`.
+Honest gaps: no photo/logo upload (biggest realism gap); owner-board rows
+refresh on action not live-poll; naive wait estimate; token-only auth
+(prototype).
 
 ## Last known good commit
-Latest commit on `main` (run-1 close, includes both prototypes green).
+Latest commit on `main` (Poppin prototype + E-4).
 
 ## Known blockers
-1. `ANTHROPIC_API_KEY` needed in `prototypes/inkline/.env` (+ founder OK
-   for ~15 vision calls/run of harness spend) — R-7.
-2. Corpus downloads blocked by network policy here; verify manifest URLs
-   when internet is open (`harness/fetch-corpus.sh`).
+The decisive questions — do artists share it, will they pay — need REAL
+users. Any outreach requires founder approval (protocol hard limit). No
+blocker on further build/design work.
 
 ## Next three actions
-1. Run the E-2 gate: fetch/verify corpus → `npm run harness` with the real
-   provider → judge against pre-registered criteria → record in
-   EXPERIMENT_LOG and confirm or reverse D-4 in DECISION_LOG.
-2. If confirmed: Stage 6 loop 1 on InkLine — degraded-scan quality +
-   confidence calibration (is a 0.9-confidence word actually right ~90% of
-   the time?); then box-of-letters collections UX.
-3. If reversed: formal reconsideration per D-4 (C-2 DrawDesk format-risk
-   research first, then Stage 3 record).
+1. Get founder reaction to the Poppin screenshots (proud-to-share bar).
+2. If positive: add artist photo/logo + item photos upload (the #1 realism
+   gap for this aesthetic-driven niche) and a lightweight onboarding.
+3. Prepare (do NOT execute without founder approval) an external-validation
+   plan: put Poppin in front of ~5 real pop-up artists; success = at least
+   some create AND share a page (the real loop test), plus a WTP probe on
+   removing the footer / SMS notifications.
 
 ## Exact build, run and test commands
-Per prototype dir: `npm install`, `npm run dev` (PORT env), `npm test`.
-InkLine: `npm run harness`; real mode: `.env` with `ANTHROPIC_API_KEY=...`,
-`TRANSCRIBE_PROVIDER=anthropic` (optionally `MODEL=`). Playwright scripts
-already set `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`; never run
+`cd prototypes/poppin && npm install && npm run dev` (PORT env, default 3000);
+`npm test` (30 unit + 10 e2e). Playwright uses the preinstalled Chromium via
+`PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers` in the npm scripts — never run
 `playwright install`; keep `@playwright/test` pinned (chromium-1194).
+(Run-1 prototypes `chaselist/` and `inkline/` remain, archived.)

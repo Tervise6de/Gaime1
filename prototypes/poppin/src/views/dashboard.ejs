@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head><%- include('partials/head', { title: title }) %></head>
+<body>
+  <div class="topbar">
+    <div class="wrap-wide">
+      <span class="brand">Poppin<span class="accent">.</span></span>
+      <span class="pill">Dashboard</span>
+      <span class="spacer"></span>
+      <a class="btn btn-ghost btn-sm" href="/@<%= artist.handle %>" target="_blank">View my page ↗</a>
+    </div>
+  </div>
+
+  <main class="wrap wrap-wide page">
+    <% if (typeof saved !== 'undefined' && saved) { %>
+      <div class="toast" style="margin-bottom:16px;">Saved ✓</div>
+    <% } %>
+
+    <div class="grid grid-2">
+      <!-- LEFT: profile + catalog -->
+      <div class="stack">
+        <section class="card" id="profile">
+          <div class="card-head">
+            <div class="avatar avatar-sm"><%= initialOf(artist.name) %></div>
+            <div><h2><%= artist.name %></h2><div class="small muted">@<%= artist.handle %></div></div>
+          </div>
+          <form method="post" action="/dashboard/<%= artist.owner_token %>/profile">
+            <div class="field"><label for="name">Display name</label>
+              <input type="text" id="name" name="name" value="<%= artist.name %>" maxlength="80" /></div>
+            <div class="field"><label for="handle">Handle <span class="faint" style="font-weight:400;">(your public URL: /@handle)</span></label>
+              <input type="text" id="handle" name="handle" value="<%= artist.handle %>" maxlength="24" /></div>
+            <div class="field"><label for="bio">Bio</label>
+              <textarea id="bio" name="bio" maxlength="400" placeholder="Permanent jewelry, welded on…"><%= artist.bio %></textarea></div>
+            <div class="field"><label for="instagram">Instagram handle</label>
+              <input type="text" id="instagram" name="instagram" value="<%= artist.instagram %>" maxlength="60" placeholder="ariagold.pj" /></div>
+            <button class="btn btn-primary" type="submit" style="margin-top:14px;">Save profile</button>
+          </form>
+        </section>
+
+        <section class="card" id="catalog">
+          <div class="card-head"><h2>Menu</h2><span class="spacer"></span><span class="small faint"><%= catalog.length %> items</span></div>
+          <% if (!catalog.length) { %><div class="empty">No items yet — add your chains &amp; add-ons below.</div><% } %>
+          <% catalog.forEach(function(item, i) { %>
+            <div class="list-row">
+              <div class="grow">
+                <div class="title"><%= item.name %> <% if (item.price_cents != null) { %><span class="muted" style="font-weight:600;">· <%= formatPrice(item.price_cents) %></span><% } %></div>
+                <% if (item.description) { %><div class="small muted"><%= item.description %></div><% } %>
+                <details style="margin-top:6px;">
+                  <summary class="small" style="cursor:pointer; color:var(--gold-deep);">Edit</summary>
+                  <form method="post" action="/dashboard/<%= artist.owner_token %>/catalog/<%= item.id %>/edit" style="margin-top:8px;">
+                    <input type="text" name="name" value="<%= item.name %>" maxlength="80" style="margin-bottom:6px;" />
+                    <input type="text" name="description" value="<%= item.description %>" maxlength="200" placeholder="Description" style="margin-bottom:6px;" />
+                    <div class="inline-form">
+                      <input type="text" name="price" value="<%= item.price_cents != null ? (item.price_cents/100) : '' %>" placeholder="Price" style="max-width:120px;" />
+                      <button class="btn btn-soft btn-sm" type="submit">Save</button>
+                    </div>
+                  </form>
+                </details>
+              </div>
+              <div class="queue-actions">
+                <form method="post" action="/dashboard/<%= artist.owner_token %>/catalog/<%= item.id %>/move"><input type="hidden" name="direction" value="up" /><button class="btn btn-soft btn-sm" type="submit" <%= i===0?'disabled':'' %>>↑</button></form>
+                <form method="post" action="/dashboard/<%= artist.owner_token %>/catalog/<%= item.id %>/move"><input type="hidden" name="direction" value="down" /><button class="btn btn-soft btn-sm" type="submit" <%= i===catalog.length-1?'disabled':'' %>>↓</button></form>
+                <form method="post" action="/dashboard/<%= artist.owner_token %>/catalog/<%= item.id %>/delete"><button class="btn btn-danger btn-sm" type="submit">✕</button></form>
+              </div>
+            </div>
+          <% }); %>
+
+          <form method="post" action="/dashboard/<%= artist.owner_token %>/catalog" style="margin-top:16px; border-top:1px solid var(--line); padding-top:16px;">
+            <div class="field" style="margin-top:0;"><label for="c-name">Add an item</label>
+              <input type="text" id="c-name" name="name" placeholder="Dainty chain bracelet" maxlength="80" required /></div>
+            <input type="text" name="description" placeholder="Short description (optional)" maxlength="200" style="margin-top:8px;" />
+            <div class="inline-form" style="margin-top:8px;">
+              <input type="text" name="price" placeholder="Price e.g. 48" style="max-width:140px;" />
+              <button class="btn btn-primary btn-sm" type="submit">Add item</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- RIGHT: events -->
+      <div class="stack">
+        <section class="card" id="events">
+          <div class="card-head"><h2>Pop-ups</h2></div>
+          <% if (!events.length) { %><div class="empty">No pop-ups yet — create your first below.</div><% } %>
+          <% events.forEach(function(ev) { const when = whenText(ev.starts_at, ev.ends_at); %>
+            <a class="list-row" href="/dashboard/<%= artist.owner_token %>/event/<%= ev.id %>" style="color:inherit; text-decoration:none;">
+              <div class="grow">
+                <div class="title"><%= ev.title %>
+                  <% if (ev.status==='live') { %><span class="pill pill-live" style="margin-left:6px;"><span class="dot dot-pulse"></span>Live</span>
+                  <% } else if (ev.status==='ended') { %><span class="pill" style="margin-left:6px;">Ended</span>
+                  <% } else { %><span class="pill pill-upcoming" style="margin-left:6px;">Upcoming</span><% } %>
+                </div>
+                <div class="small muted"><%= ev.venue_name || '—' %><% if (when) { %> · <%= when %><% } %></div>
+              </div>
+              <div class="center">
+                <div class="title" style="font-family:var(--serif); font-size:1.3rem; color:var(--gold-deep);"><%= counts[ev.id] || 0 %></div>
+                <div class="small faint">waiting</div>
+              </div>
+            </a>
+          <% }); %>
+
+          <form method="post" action="/dashboard/<%= artist.owner_token %>/event" style="margin-top:16px; border-top:1px solid var(--line); padding-top:16px;">
+            <div class="field" style="margin-top:0;"><label for="e-title">New pop-up</label>
+              <input type="text" id="e-title" name="title" placeholder="Permanent Jewelry Pop-Up" maxlength="80" required /></div>
+            <input type="text" name="venue_name" placeholder="Venue (e.g. Bloom & Vine Boutique)" maxlength="80" style="margin-top:8px;" />
+            <input type="text" name="address" placeholder="Address (optional)" maxlength="120" style="margin-top:8px;" />
+            <div class="row2" style="margin-top:8px;">
+              <div><label for="e-start" class="small">Starts</label><input type="datetime-local" id="e-start" name="starts_at" /></div>
+              <div><label for="e-end" class="small">Ends</label><input type="datetime-local" id="e-end" name="ends_at" /></div>
+            </div>
+            <button class="btn btn-primary" type="submit" style="margin-top:12px;">Create pop-up</button>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    <p class="footer-mini">Keep this dashboard link private — it’s the only key to your account in this prototype.</p>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

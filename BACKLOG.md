@@ -4,31 +4,29 @@ Every item must relate to: user value, distribution, monetization, risk
 reduction, product quality, or technical reliability. Do not fill this with
 low-value polish. `Now` may contain **at most five items**.
 
-## Now
+## Now  (product = Poppin, R2-1)
 
-1. **Gate:** run InkLine real quality harness once `ANTHROPIC_API_KEY`
-   exists (fetch corpus → verify ground truths → `npm run harness` → judge
-   E-2 criteria → confirm/reverse D-4). *(risk reduction — the single
-   deciding experiment)*
-2. If gate passes: begin Stage 6 on InkLine — first loop: real-scan quality
-   on deliberately degraded documents + confidence-threshold tuning.
-   *(user value)*
-3. If gate passes: InkLine collections UX (box-of-letters flow: multi-page
-   upload, collection artifact page). *(user value / retention)*
-4. Prepare Stage 7 morning-report skeleton from run-1 evidence (both
-   prototypes, honest proven-vs-assumed). *(risk reduction)*
+1. Founder reaction to Poppin screenshots — does the public page clear the
+   "proud to share" bar for you? *(direction gate)*
+2. Add artist photo/logo + item-photo upload — the #1 realism gap for an
+   aesthetic-driven niche (permanent jewelry is visual). *(product quality)*
+3. Owner waitlist board: make queue rows live-refresh (not only headline
+   counts) so a new walk-in appears without a manual reload. *(product quality)*
+4. Prepare (do NOT execute) an external-validation plan: ~5 real pop-up
+   artists, success = some create AND share a page + a footer-removal/SMS
+   WTP probe. *(distribution + monetization — the real test)*
 
 ## Next
 
-- Founder ask (non-routine, blocking): supply `ANTHROPIC_API_KEY` via
-  `prototypes/inkline/.env` (R-7); also confirm modest API spend for the
-  harness (~15 vision calls per run).
-- InkLine conversion moment: recipient-side "transcribe one of your own —
-  first page free" flow actually functional end to end.
-- Stage 6 loops: per-word confidence calibration audit; PDF-page ingestion;
-  GEDCOM/PDF export.
-- If D-4 reverses (harness fails): formal reconsideration — C-2 DrawDesk
-  format-risk research or return to Stage 3 with the evaluation record.
+- Founder ask (non-routine, blocking the real test): approval to put Poppin
+  in front of real artists (protocol hard limit — no contacting users
+  without approval).
+- Poppin paid boundary build-out: footer removal, custom handle/domain, SMS
+  "you're up next" (needs a provider + founder approval for any paid service).
+- Poppin onboarding polish: fast first-page creation, sample content.
+- Shelved but preserved: InkLine (needs `ANTHROPIC_API_KEY` to run its E-2
+  quality harness) and ChaseList — revisit only if the Poppin direction is
+  abandoned.
 
 ## Later
 

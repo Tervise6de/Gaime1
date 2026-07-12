@@ -4,16 +4,16 @@ Canonical current state. Every session updates this file before ending.
 
 ## Current state
 
-- **Current stage:** `CONCEPTS` (run 2, post-pivot D-5) — awaiting founder taste selection among the Run 2 shortlist before prototyping
-- **Current product:** none — Run 1 finalists shelved by founder pivot (D-5). Run 2 shortlist (R2-1..R2-4) in CONCEPTS.md pending selection
-- **Fallback product:** n/a during re-ideation; Run 1 prototypes preserved in `prototypes/` as prior exploration
-- **Current implementation:** none active. Archived: `prototypes/chaselist/` and `prototypes/inkline/` (both green, from Run 1)
-- **Target user:** TBD by selection — candidates are event/pop-up commerce vendors (permanent-jewelry/lash/tattoo pop-ups; wedding photographers; mobile food vendors) or service SMBs
-- **Active hypothesis:** a customer-facing broadcast artifact for a tight vendor niche can grow hands-off via a peer loop (recipient = ICP). UNKNOWN until a concept is chosen and tested.
-- **Last known good commit:** latest on main (pivot + Run 2 research/shortlist)
-- **Current build status:** not started (re-ideation)
-- **Highest-value next action:** founder picks a Run 2 direction → write its full finalist brief + prototype the peer-loop artifact (single-player value first) → test whether the shared link is compelling enough to switch from static PDFs/Canva
-- **Blockers:** awaiting founder taste selection (question posed 2026-07-11)
+- **Current stage:** `WINNER_DEVELOPMENT` (run 2, post-pivot) — Poppin (R2-1) chosen (D-6) and prototyped; core artifact + waitlist verified (E-4). Next real test is EXTERNAL (would artists share it) → needs founder approval.
+- **Current product:** Poppin — public pop-up page + live walk-in waitlist for pop-up service artists (lead: permanent jewelry). Prototype built & verified.
+- **Fallback product:** other Run 2 concepts (R2-2 wedding timeline, R2-3 mobile menu) unbuilt; Run 1 prototypes archived in `prototypes/`
+- **Current implementation:** `prototypes/poppin/` — 30 unit + 10 e2e green; mobile screenshots in `docs/screenshots/`; zero API keys
+- **Target user:** pop-up service artists — permanent-jewelry welders (lead), lash/brow/piercing/tattoo-flash (adjacent)
+- **Active hypothesis:** artists will actually create + share these pages, igniting a peer loop (recipient = ICP). ASSUMPTION — untestable internally; E-4 only verified the precondition (proud-to-share artifact + working waitlist).
+- **Last known good commit:** latest on main (Poppin prototype, E-4)
+- **Current build status:** Poppin green (`npm test` in prototypes/poppin)
+- **Highest-value next action:** founder reaction to screenshots; if positive → (1) add photo/logo upload (biggest realism gap), (2) prepare founder-approved external validation with ~5 real pop-up artists (the real loop/WTP test)
+- **Blockers:** the decisive questions (do artists share it, will they pay) require real users → founder approval to reach out; nothing else blocks build work
 - **Morning report ready:** false
 
 ## Stage definitions

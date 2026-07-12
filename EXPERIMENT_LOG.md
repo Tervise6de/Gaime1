@@ -96,3 +96,33 @@ runs" proves implementation, not user value.
   reasons remain unmeasured.
 - Next action: none autonomous — reviving C-1 would require founder-level
   evidence (incumbent churn interviews or head-to-head recipient testing).
+
+## E-4: Poppin — can we build a pop-up page an artist is PROUD to share, with a working live walk-in list?
+- Hypothesis: the precondition for the entire hands-off loop is a public page
+  polished enough that a permanent-jewelry artist willingly shares it; and the
+  live walk-in waitlist must actually work for artist + customer on phones.
+- Evidence classification (before test): ASSUMPTION (design/UX bar) + build risk.
+- Test: built `prototypes/poppin/`; independently re-ran suite (30 unit + 10
+  Playwright e2e, all green); walked the public event + join + owner-board
+  flow myself; captured mobile screenshots (`docs/screenshots/`) and judged
+  the "proud to share" bar directly.
+- Success criterion (pre-registered): public pages read as boutique/
+  shareable (not admin-generic) AND the waitlist works end-to-end (join →
+  live position → notify → served, with party-size ordering).
+- Result: PASS on both. Public event + confirmation pages are boutique-warm,
+  live-now pill, QR "scan to join at the table", dotted menu, tasteful
+  "Made with Poppin ✨" growth footer on every public surface; 2 taps to
+  join; confirmation shows live "#1 — you're up next"; waitlist verified
+  incl. party-size math. Honest gaps: no photo/logo upload (biggest realism
+  gap), owner board rows refresh on action not live-poll, naive wait
+  estimate.
+- Interpretation: VERIFIED FACT that the proud-to-share artifact and the
+  waitlist mechanic are buildable and polished at prototype scale. The
+  actual distribution loop (artists share → peers adopt) and WTP remain
+  ASSUMPTION — these are external-validation questions no internal build can
+  answer.
+- Decision: PROCEED — Poppin is a credible candidate for the pivot direction.
+- Next action: founder reaction to the screenshots; if positive, add
+  photo/logo upload, then prepare founder-approved external validation (put
+  it in front of ~5 real pop-up artists; measure whether any actually create
+  and share a page — the real loop test).

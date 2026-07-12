@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head><%- include('partials/head', { title: title }) %></head>
+<body>
+  <div class="topbar">
+    <div class="wrap-wide">
+      <a class="brand" href="/dashboard/<%= artist.owner_token %>" style="text-decoration:none;">Poppin<span class="accent">.</span></a>
+      <span class="spacer"></span>
+      <a class="btn btn-ghost btn-sm" href="/dashboard/<%= artist.owner_token %>">← All pop-ups</a>
+    </div>
+  </div>
+
+  <main class="wrap wrap-wide page">
+    <div class="board-head" style="margin-bottom:18px;">
+      <div class="grow">
+        <div class="small faint" style="text-transform:uppercase; letter-spacing:.12em;"><%= event.venue_name || 'Pop-up' %></div>
+        <h1 style="font-size:1.7rem;"><%= event.title %></h1>
+        <div style="margin-top:8px;">
+          <% ['upcoming','live','ended'].forEach(function(s){ %>
+            <form method="post" action="/dashboard/<%= artist.owner_token %>/event/<%= event.id %>/status" style="display:inline-block;">
+              <input type="hidden" name="status" value="<%= s %>" />
+              <button class="btn btn-sm <%= event.status===s ? 'btn-primary' : 'btn-soft' %>" type="submit"><%= s==='live'?'● Go live':(s==='ended'?'End':'Upcoming') %></button>
+            </form>
+          <% }); %>
+        </div>
+      </div>
+      <div class="metric">
+        <div class="num" data-metric-people><%= q.peopleWaiting %></div>
+        <div class="lbl">people waiting</div>
+        <div class="sub"><span data-metric-groups><%= q.groupsWaiting %></span> groups · ~<span data-metric-wait><%= q.headWaitMin %></span> min to clear</div>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <!-- Queue -->
+      <div class="stack">
+        <section class="card">
+          <div class="card-head">
+            <h2>Walk-in line</h2><span class="spacer"></span>
+            <form method="post" action="/dashboard/<%= artist.owner_token %>/event/<%= event.id %>/notify">
+              <button class="btn btn-primary btn-sm" type="submit" <%= q.groupsWaiting===0?'disabled':'' %>>🔔 Notify next</button>
+            </form>
+          </div>
+
+          <!-- Notified (currently being called up) -->
+          <div data-notified>
+          <% q.notified.forEach(function(e){ %>
+            <div class="queue-row notified">
+              <div class="pos" style="background:var(--live); color:#fff;">✦</div>
+              <div class="who"><div class="nm"><%= e.name %> <span class="pill pill-live" style="font-size:.62rem;">Called up</span></div>
+                <div class="meta">Party of <%= e.party_size %> · notified</div></div>
+              <div class="queue-actions">
+                <form method="post" action="/dashboard/<%= artist.owner_token %>/event/<%= event.id %>/entry/<%= e.id %>/served"><button class="btn btn-green btn-sm" type="submit">Served</button></form>
+                <form method="post" action="/dashboard/<%= artist.owner_token %>/event/<%= event.id %>/entry/<%= e.id %>/noshow"><button class="btn btn-soft btn-sm" type="submit">No-show</button></form>
+              </div>
+            </div>
+          <% }); %>
+          </div>
+
+          <!-- Waiting queue -->
+          <div data-queue>
+          <% if (q.waitingRows.length === 0 && q.notified.length === 0) { %>
+            <div class="empty">Nobody in line yet.<br/>Show the QR at your table — walk-ins scan to join.</div>
+          <% } %>
+          <% q.waitingRows.forEach(function(e){ %>
+            <div class="queue-row <%= e.position===1?'next':'' %>">
+              <div class="pos"><%= e.position %></div>
+              <div class="who"><div class="nm"><%= e.name %></div>
+                <div class="meta">Party of <%= e.party_size %> · <%= e.ahead===0 ? 'up next' : e.ahead + ' ahead · ' + formatWait(e.waitMin) %></div></div>
+              <div class="queue-actions">
+                <form method="post" action="/dashboard/<%= artist.owner_token %>/event/<%= event.id %>/entry/<%= e.id %>/served"><button class="btn btn-green btn-sm" type="submit">Served</button></form>
+                <form method="post" action="/dashboard/<%= artist.owner_token %>/event/<%= event.id %>/entry/<%= e.id %>/remove"><button class="btn btn-danger btn-sm" type="submit">Remove</button></form>
+              </div>
+            </div>
+          <% }); %>
+          </div>
+        </section>
+
+        <% if (q.recent.length) { %>
+        <section class="card">
+          <div class="card-head"><h2 style="font-size:1.05rem;">Recently handled</h2></div>
+          <% q.recent.forEach(function(e){ %>
+            <div class="list-row"><div class="grow"><span class="title"><%= e.name %></span> <span class="small muted">party of <%= e.party_size %></span></div>
+              <span class="pill <%= e.status==='served'?'pill-gold':'' %>"><%= e.status==='served'?'Served':'No-show' %></span></div>
+          <% }); %>
+        </section>
+        <% } %>
+      </div>
+
+      <!-- Share + QR + outbox -->
+      <div class="stack">
+        <section class="card qr-block">
+          <div class="section-label" style="margin-top:0;">Your table sign</div>
+          <% if (qr) { %><img src="<%= qr %>" alt="QR code for this pop-up" /><% } %>
+          <p class="small muted" style="margin-top:8px;">Print this or show it on your phone. Walk-ins scan to join the list.</p>
+          <div class="share-row">
+            <a class="btn btn-soft" href="<%= publicEventUrl %>" target="_blank">Preview public page ↗</a>
+            <button class="btn btn-primary" type="button" data-copy="<%= publicEventUrl %>"><span data-copy-label>Copy link</span></button>
+          </div>
+          <div class="link-copy"><input type="text" value="<%= publicEventUrl %>" readonly data-copy-target onclick="this.select()" /></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2 style="font-size:1.05rem;">Notifications sent</h2><span class="spacer"></span><span class="pill">outbox · not really sent</span></div>
+          <% if (!outbox.length) { %><div class="empty small">Tap “Notify next” and the message we’d text them shows up here.</div><% } %>
+          <% outbox.forEach(function(o){ %>
+            <div class="outbox-item"><b><%= o.kind.toUpperCase() %></b> · <%= o.created_at %><br/><%= o.body %></div>
+          <% }); %>
+        </section>
+      </div>
+    </div>
+
+    <p class="footer-mini">
+      <span class="dot dot-pulse" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);"></span>
+      Live board — refreshes every few seconds.
+    </p>
+  </main>
+
+  <script src="/static/app.js"></script>
+  <script>
+    (function () {
+      var url = "/dashboard/<%= artist.owner_token %>/event/<%= event.id %>/state";
+      // Poll only updates the headline metrics live; the action buttons already
+      // full-reload on submit, so we avoid re-rendering forms mid-tap.
+      function render(s) {
+        document.querySelector('[data-metric-people]').textContent = s.peopleWaiting;
+        document.querySelector('[data-metric-groups]').textContent = s.groupsWaiting;
+        document.querySelector('[data-metric-wait]').textContent = s.headWaitMin;
+      }
+      if (window.startPoll) window.startPoll(url, 5000, render);
+    })();
+  </script>
+</body>
+</html>

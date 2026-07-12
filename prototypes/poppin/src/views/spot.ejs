@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head><%- include('partials/head', { title: title }) %></head>
+<body class="public">
+  <main class="wrap">
+    <header class="hero" style="padding:26px 0 6px;">
+      <div class="avatar avatar-sm" style="margin:0 auto 10px;"><%= initialOf(artist.name) %></div>
+      <div class="handle" style="color:var(--ink-soft); font-weight:500;"><%= event.venue_name || event.title %></div>
+    </header>
+
+    <section class="card spot-card" id="spot" data-token="<%= entry.entry_token %>">
+      <div class="pill pill-gold" style="margin:0 auto;">You're on the list, <%= entry.name %></div>
+
+      <!-- WAITING -->
+      <div data-view="waiting" style="<%= state.status === 'waiting' ? '' : 'display:none' %>">
+        <div class="small muted" style="margin-top:18px;">Your spot in line</div>
+        <div class="spot-num" data-position>#<%= state.position || '—' %></div>
+        <div class="status-big" data-wait>
+          <% if (state.ahead === 0) { %>You're up next!<% } else { %><%= formatWait(state.waitMin) %> wait<% } %>
+        </div>
+        <p class="muted" data-ahead style="margin-top:8px;">
+          <% if (state.ahead === 0) { %>Head to the table when you're ready ✨<% } else { %><%= state.ahead %> <%= state.ahead === 1 ? 'person' : 'people' %> ahead of you<% } %>
+        </p>
+      </div>
+
+      <!-- NOTIFIED -->
+      <div data-view="notified" style="<%= state.status === 'notified' ? '' : 'display:none' %>">
+        <div class="spot-num small status-notified" style="margin-top:16px;">You're up! ✨</div>
+        <p class="status-big status-notified">Come to the table</p>
+        <p class="muted" style="margin-top:8px;"><%= artist.name %> is ready for you.</p>
+      </div>
+
+      <!-- SERVED -->
+      <div data-view="served" style="<%= state.status === 'served' ? '' : 'display:none' %>">
+        <div class="spot-num small status-served" style="margin-top:16px;">All done 💛</div>
+        <p class="muted">Thanks for stopping by! Tag <a href="/@<%= artist.handle %>">@<%= artist.handle %></a> in your story.</p>
+      </div>
+
+      <!-- CANCELLED / NO_SHOW -->
+      <div data-view="gone" style="<%= (state.status === 'cancelled' || state.status === 'no_show') ? '' : 'display:none' %>">
+        <div class="spot-num small" style="margin-top:16px; color:var(--ink-faint);">Spot released</div>
+        <p class="muted">You’re no longer on the list.</p>
+        <a class="btn btn-primary" href="/e/<%= event.public_token %>" style="margin-top:14px;">Re-join the list</a>
+      </div>
+
+      <hr class="hr" data-cancel-wrap style="<%= (state.status === 'waiting' || state.status === 'notified') ? '' : 'display:none' %>" />
+      <form method="post" action="/e/<%= event.public_token %>/spot/<%= entry.entry_token %>/cancel"
+            data-cancel-form style="<%= (state.status === 'waiting' || state.status === 'notified') ? '' : 'display:none' %>">
+        <button class="btn btn-danger btn-sm" type="submit">Cancel my spot</button>
+      </form>
+    </section>
+
+    <p class="small faint center" style="margin-top:14px;">
+      <span class="dot dot-pulse" style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green);"></span>
+      Live — this updates on its own. Keep this page open.
+    </p>
+
+    <%- include('partials/poppin-footer', { artist: artist }) %>
+  </main>
+
+  <script src="/static/app.js"></script>
+  <script>
+    (function () {
+      var url = "/e/<%= event.public_token %>/spot/<%= entry.entry_token %>/state";
+      var el = document.getElementById('spot');
+      function show(name) {
+        el.querySelectorAll('[data-view]').forEach(function (v) {
+          v.style.display = v.getAttribute('data-view') === name ? '' : 'none';
+        });
+        var canCancel = (name === 'waiting' || name === 'notified');
+        el.querySelector('[data-cancel-wrap]').style.display = canCancel ? '' : 'none';
+        el.querySelector('[data-cancel-form]').style.display = canCancel ? '' : 'none';
+      }
+      function render(s) {
+        if (s.status === 'waiting') {
+          show('waiting');
+          el.querySelector('[data-position]').textContent = '#' + (s.position || '—');
+          el.querySelector('[data-wait]').textContent = s.ahead === 0 ? "You're up next!" : (fmtWait(s.waitMin) + ' wait');
+          el.querySelector('[data-ahead]').textContent = s.ahead === 0
+            ? 'Head to the table when you’re ready ✨'
+            : (s.ahead + (s.ahead === 1 ? ' person' : ' people') + ' ahead of you');
+        } else if (s.status === 'notified') { show('notified'); }
+        else if (s.status === 'served') { show('served'); }
+        else { show('gone'); }
+      }
+      function fmtWait(m) {
+        m = Math.max(0, Math.round(m || 0));
+        if (m === 0) return 'up next';
+        if (m < 60) return '~' + m + ' min';
+        var h = Math.floor(m/60), r = m%60;
+        return r === 0 ? '~' + h + ' hr' : '~' + h + ' hr ' + r + ' min';
+      }
+      if (window.startPoll) window.startPoll(url, 5000, render);
+    })();
+  </script>
+</body>
+</html>

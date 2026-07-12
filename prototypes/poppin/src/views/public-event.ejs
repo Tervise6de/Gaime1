@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head><%- include('partials/head', { title: title }) %></head>
+<body class="public">
+  <main class="wrap">
+    <header class="hero" style="padding-bottom:14px;">
+      <a href="/@<%= artist.handle %>" style="text-decoration:none; color:inherit;">
+        <div class="avatar avatar-sm" style="margin:0 auto 12px;"><%= initialOf(artist.name) %></div>
+      </a>
+      <% if (event.status === 'live') { %>
+        <span class="pill pill-live"><span class="dot dot-pulse"></span> Live now</span>
+      <% } else if (event.status === 'ended') { %>
+        <span class="pill">Wrapped up</span>
+      <% } else { %>
+        <span class="pill pill-upcoming">Upcoming</span>
+      <% } %>
+      <h1 style="margin-top:12px;"><%= event.title %></h1>
+      <div class="handle" style="color:var(--ink-soft); font-weight:500;">with <%= artist.name %></div>
+    </header>
+
+    <div class="card stack">
+      <div>
+        <div class="section-label" style="margin-top:0;">Where &amp; when</div>
+        <div class="venue" style="font-family:var(--serif); font-size:1.25rem;"><%= event.venue_name || 'Pop-up' %></div>
+        <% const when = whenText(event.starts_at, event.ends_at); if (when) { %>
+          <div class="when muted"><%= when %></div>
+        <% } %>
+        <% if (event.address) { %><div class="addr faint"><%= event.address %></div><% } %>
+      </div>
+    </div>
+
+    <% if (event.status === 'live') { %>
+      <div class="live-banner" style="margin-top:16px;">
+        <div>
+          <div class="big"><%= groupsWaiting %> <%= groupsWaiting === 1 ? 'group' : 'groups' %> ahead</div>
+          <div class="small muted"><%= peopleWaiting %> <%= peopleWaiting === 1 ? 'person' : 'people' %> on the walk-in list right now</div>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (event.status === 'ended') { %>
+      <div class="card center muted" style="margin-top:16px;">This pop-up has wrapped. Follow <a href="/@<%= artist.handle %>">@<%= artist.handle %></a> for the next one ✨</div>
+    <% } else { %>
+      <section class="card" style="margin-top:16px;">
+        <div class="card-head"><h2>Join the walk-in list</h2></div>
+        <% if (typeof joined !== 'undefined' && joined === 'missing') { %>
+          <div class="toast" style="background:var(--blush-soft); color:var(--red); margin-bottom:12px;">Please add your name so we know who to call.</div>
+        <% } %>
+        <form method="post" action="/e/<%= event.public_token %>/join">
+          <div class="field">
+            <label for="name">Your name</label>
+            <input type="text" id="name" name="name" placeholder="First name is perfect" required maxlength="60" autocomplete="given-name" />
+          </div>
+          <div class="row2" style="margin-top:14px;">
+            <div class="field" style="margin-top:0;">
+              <label for="party_size">Party size</label>
+              <select id="party_size" name="party_size">
+                <% for (let i=1;i<=8;i++){ %><option value="<%= i %>"><%= i %> <%= i===1?'person':'people' %></option><% } %>
+              </select>
+            </div>
+            <div class="field" style="margin-top:0;">
+              <label for="phone">Phone <span class="faint" style="font-weight:400;">(optional)</span></label>
+              <input type="tel" id="phone" name="phone" placeholder="Only if you want a text" maxlength="30" autocomplete="tel" />
+            </div>
+          </div>
+          <button class="btn btn-primary btn-lg btn-block" type="submit" style="margin-top:18px;">Join the list</button>
+          <p class="small faint center" style="margin-top:10px;">We only use your phone (if you add one) to tell you it’s your turn.</p>
+        </form>
+      </section>
+    <% } %>
+
+    <section class="card qr-block" style="margin-top:16px;">
+      <div class="section-label" style="margin-top:0;">Scan to join at the table</div>
+      <% if (qr) { %><img src="<%= qr %>" alt="QR code to open this pop-up page" /><% } %>
+      <div class="share-row">
+        <button class="btn btn-soft" type="button" data-share="<%= url %>" data-share-title="<%= event.title %>" data-copy="<%= url %>">
+          <span data-copy-label>Share link</span>
+        </button>
+      </div>
+      <div class="link-copy">
+        <input type="text" value="<%= url %>" readonly data-copy-target onclick="this.select()" />
+      </div>
+    </section>
+
+    <% if (catalog.length) { %>
+      <div class="section-label">The menu</div>
+      <div class="card">
+        <div class="menu">
+          <% catalog.forEach(function(item) { %>
+            <div class="menu-item">
+              <div>
+                <div class="name"><%= item.name %></div>
+                <% if (item.description) { %><div class="desc"><%= item.description %></div><% } %>
+              </div>
+              <% if (item.price_cents != null) { %>
+                <span class="dots"></span><div class="price"><%= formatPrice(item.price_cents) %></div>
+              <% } %>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+
+    <%- include('partials/poppin-footer', { artist: artist }) %>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

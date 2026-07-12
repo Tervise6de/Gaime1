@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head><%- include('partials/head', { title: title }) %></head>
+<body class="public">
+  <main class="wrap">
+    <header class="hero">
+      <div class="avatar"><%= initialOf(artist.name) %></div>
+      <h1><%= artist.name %></h1>
+      <div class="handle">@<%= artist.handle %></div>
+      <% if (artist.bio) { %><p class="bio"><%= artist.bio %></p><% } %>
+      <div class="hero-links">
+        <% if (artist.instagram) { %>
+          <a class="btn btn-ghost btn-sm" href="https://instagram.com/<%= artist.instagram %>" rel="noopener" target="_blank">Instagram ↗</a>
+        <% } %>
+      </div>
+    </header>
+
+    <% const liveEvents = events.filter(e => e.status === 'live');
+       const upcoming = events.filter(e => e.status === 'upcoming'); %>
+
+    <% if (events.length) { %>
+      <div class="section-label">Where to find me</div>
+      <div class="stack">
+        <% events.forEach(function(ev) { const when = whenText(ev.starts_at, ev.ends_at); %>
+          <a class="card event-card" href="/e/<%= ev.public_token %>" style="display:block; color:inherit;">
+            <% if (ev.status === 'live') { %>
+              <span class="pill pill-live"><span class="dot dot-pulse"></span> Live now</span>
+            <% } else { %>
+              <span class="pill pill-upcoming">Upcoming</span>
+            <% } %>
+            <div class="venue"><%= ev.venue_name || ev.title %></div>
+            <% if (when) { %><div class="when"><%= when %></div><% } %>
+            <% if (ev.address) { %><div class="addr"><%= ev.address %></div><% } %>
+            <div class="small" style="margin-top:10px; color:var(--gold-deep); font-weight:600;">
+              <%= ev.status === 'live' ? 'Join the walk-in list →' : 'View pop-up →' %>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="card center muted">No pop-ups on the calendar right now — check back soon ✨</div>
+    <% } %>
+
+    <% if (catalog.length) { %>
+      <div class="section-label">The menu</div>
+      <div class="card">
+        <div class="menu">
+          <% catalog.forEach(function(item) { %>
+            <div class="menu-item">
+              <div>
+                <div class="name"><%= item.name %></div>
+                <% if (item.description) { %><div class="desc"><%= item.description %></div><% } %>
+              </div>
+              <% if (item.price_cents != null) { %>
+                <span class="dots"></span>
+                <div class="price"><%= formatPrice(item.price_cents) %></div>
+              <% } %>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+
+    <%- include('partials/poppin-footer', { artist: artist }) %>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
