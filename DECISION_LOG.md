@@ -147,3 +147,28 @@ reversing any earlier decision.
   reserve path but does NOT fit the hands-off rule and is deprioritized.
 - What could invalidate this decision: founder reverses direction.
 - Status: ACTIVE
+
+## D-6: Run 2 direction — build R2-1 (pop-up service page + walk-in waitlist)
+
+- Date / session: 2026-07-11, run 2
+- Decision: build R2-1 first — a public pop-up page + live walk-in waitlist
+  for pop-up service artists (lead persona: permanent-jewelry welders;
+  adjacent: lash/brow/piercing/tattoo-flash). Working name "Poppin".
+- How chosen: presented the R2-1..R2-4 shortlist to the founder; the
+  taste-selection tool call failed (permission stream), founder said
+  "continue" → proceeded autonomously with the recommended pick. Reversible.
+- Rationale: best fit for hands-off + ~3-month target — tight, fast-copying,
+  actively-growing community makes a peer loop most likely to ignite
+  quickly; proven WTP (gear spend); single-player value first (artist makes
+  their own page); zero API keys → fully self-testable overnight; visually
+  demonstrable ("proud to share" artifact is the whole distribution bet).
+- Riskiest assumption the prototype must probe: can we make a page an artist
+  is genuinely PROUD to share (that's the precondition for the loop), and
+  does the live walk-in waitlist actually work on phones at a crowded table?
+- Alternatives: R2-2 wedding timeline (denser per-event loop but seasonal,
+  slower-moving buyers); R2-3/R2-4 weaker-evidence / slower-loop.
+- Evidence: STRONG PROXY (niche trend + WTP from Run 2 research);
+  CREATIVE JUDGMENT (product shape); loop conversion = ASSUMPTION.
+- What could invalidate this decision: founder prefers another R2 concept;
+  or the built page can't clear the "proud to share" bar.
+- Status: ACTIVE
