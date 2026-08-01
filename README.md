@@ -1,43 +1,95 @@
-# Gaime1 — Autonomous Product Studio Experiment
+# CabinCraft
 
-Despite the repository name, **this is not a game project**.
+A small Minecraft-style voxel game that takes place inside **one real room** — a
+log cabin living room, rebuilt block by block from a photograph: pine log walls,
+a boarded ceiling on dark beams, wide floorboards, lace curtains at the windows,
+a chandelier, a black upright piano, two beds, a shaggy green rug and a beige
+sofa at the near end.
 
-Gaime1 is an experiment in autonomous product development: fresh Claude Code
-sessions run overnight as an autonomous product studio, searching for a
-commercially credible digital tool, web application or software product with
-genuine user value and organic-growth potential — then prototyping and
-developing the strongest candidate.
+Walk around it, break it, rebuild it. Everything you see is placeable.
+
+![Looking down the room from the doorway](docs/screenshots/01-from-the-doorway.png)
+
+## Play
+
+Requires Node 22+. No build step, no dependencies to run.
+
+```
+npm run dev        # then open http://localhost:3000
+```
+
+| Control | Action |
+|---|---|
+| `W` `A` `S` `D` | walk |
+| `Space` | jump (fly up when flying) |
+| `Shift` | crouch (fly down when flying) |
+| `Ctrl` | sprint |
+| Left click | break the block you are looking at |
+| Right click | place the held block |
+| Middle click / `Q` | copy the block you are looking at |
+| `1`–`9`, scroll | choose a hotbar slot |
+| `E` | open the block list |
+| `F` | toggle flying |
+| `H` | hide the HUD |
+| `R` | restore the room to how it was |
+| `Esc` | release the mouse |
+
+Your changes are saved in the browser automatically, as a list of edits, and
+reapplied on top of the freshly generated room next time you load the page.
+
+## The room
+
+![The piano corner, the floral bed and the chandelier](docs/screenshots/03-piano-corner.png)
+
+One voxel is about 0.4 m, so the room is roughly 6.8 m × 12.4 m with a 2.8 m
+ceiling and the player stands 1.76 m tall. You spawn at the near end looking
+down the length of the room, standing where the camera stood.
+
+* **left** — pine-panelled wall, the black piano with peonies on the lid, the
+  floral armchair, the exercise bike, the long green shag rug
+* **right** — log wall with two curtained windows and radiators beneath them,
+  the floral bed, the house plant, the beige sofa, the wall hanging
+* **far end** — the small window over the white bed, framed pictures on the logs
+* **behind you** — a door out onto the meadow, with the cabin's log gable and
+  roof visible from outside
+
+![Beams and the chandelier](docs/screenshots/07-ceiling-beams.png)
 
 ## How it works
 
-Each autonomous session is stateless, so continuity lives in this repository:
+Everything is written from scratch in plain ES modules — no engine, no
+rendering library, no texture files.
 
-- `CLAUDE.md` tells every new session how to start, work and hand off.
-- `PROJECT_STATE.md` holds the canonical current stage and status.
-- `HANDOFF.md` is a compact snapshot overwritten by each session.
-- `AUTONOMOUS_PRODUCT_PROTOCOL.md` defines the permanent rules and the
-  eight-stage process (research → concepts → finalists → dual prototypes →
-  comparison → winner development → functional product → morning assessment).
+| File | What it does |
+|---|---|
+| `src/textures.js` | Draws every 16×16 texture procedurally into one atlas: log courses with knots, board seams, floral prints, shag tufts, lace folds |
+| `src/blocks.js` | The block registry — which tiles go on which face, and what is solid, opaque, translucent or a light source |
+| `src/world.js` | Voxel storage, flood-fill lighting for daylight and lamps, DDA ray casting, save/restore of player edits |
+| `src/room.js` | The world generator: the cabin, its furniture, and the meadow and trees around it |
+| `src/mesher.js` | Turns a chunk into geometry — hidden faces dropped, per-vertex ambient occlusion, smooth light sampling |
+| `src/renderer.js` | WebGL2: one vertex array per chunk, a solid pass and a blended pass for glass, plus the block outline |
+| `src/player.js` | AABB physics swept against the grid: gravity, jumping, crouching, flying |
+| `src/main.js` | Input, hotbar, block picker, HUD and the frame loop |
 
-Sessions read the state, continue from the latest verified work, commit and
-push, then update the state and handoff for the next session.
+Daylight is a flood fill from the open sky that leaks in sideways through the
+window glass and fades as it crosses the room, so the far end is dim and the
+chandelier does real work. Editing a block relights the world and rebuilds only
+the chunks whose geometry or light actually changed.
 
-## Where to look
+## Tests
 
-- **Current status:** `PROJECT_STATE.md` and `HANDOFF.md`
-- **The product implementation:** in this repository once Stage 4 begins
-  (none exists yet)
-- **Founder-facing assessment:** `MORNING_REPORT.md` (Stage 7)
-- **Decisions and evidence:** `DECISION_LOG.md`, `EXPERIMENT_LOG.md`
+```
+npm test           # unit tests (node:test) + end-to-end tests (Playwright)
+```
 
-## Running the product
+The unit tests cover voxel indexing, light propagation, ray casting, save
+handling, player physics and the room layout itself — the bed really is under
+the window, the doorway really is walkable. The end-to-end tests boot the game
+in Chromium and check it renders a lit room, that blocks can be broken and
+placed, and that edits survive a reload.
 
-No technology stack has been selected yet. Once it is, exact build, run and
-test commands will be recorded in `CLAUDE.md` (and mirrored in `HANDOFF.md`
-and the morning report).
+```
+node scripts/shoot.mjs [dir]   # render the viewpoints in docs/screenshots
+```
 
-## Status
-
-Experimental. Nothing here is a released product; conclusions in this
-repository are classified by evidence strength and an overnight prototype is
-never treated as market validation.
+![Outside, from the meadow](docs/screenshots/08-outside-the-cabin.png)

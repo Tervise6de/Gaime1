@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<title>CabinCraft — the log-cabin room</title>
+<link rel="stylesheet" href="src/style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%237e5432'/><rect y='4' width='16' height='1' fill='%233b2416'/><rect y='9' width='16' height='1' fill='%233b2416'/></svg>" />
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div id="crosshair" hidden></div>
+
+<div id="hud" hidden>
+  <div id="hud-left">
+    <div><b>CabinCraft</b></div>
+    <div id="hud-pos">x 0  y 0  z 0</div>
+    <div id="hud-look">looking at —</div>
+    <div id="hud-perf">— fps</div>
+  </div>
+</div>
+
+<div id="hotbar" hidden></div>
+<div id="held" hidden></div>
+
+<div id="picker" hidden>
+  <h2>Blocks</h2>
+  <p class="muted">Click a block to put it in slot <span id="picker-slot">1</span>. Press <kbd>E</kbd> or <kbd>Esc</kbd> to close.</p>
+  <div id="picker-grid"></div>
+</div>
+
+<div id="menu">
+  <div class="card">
+    <h1>CabinCraft</h1>
+    <p class="lede">A voxel sandbox built inside one real room: a log cabin with a
+      board ceiling, lace curtains, a black piano, a shaggy green rug and the
+      afternoon light coming through the windows.</p>
+    <button id="play">Click to play</button>
+    <div class="controls">
+      <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Space</kbd> jump · <kbd>Shift</kbd> crouch / down · <kbd>Ctrl</kbd> sprint</div>
+      <div><b>Left click</b> break · <b>Right click</b> place · <b>Middle click</b> or <kbd>Q</kbd> pick block</div>
+      <div><kbd>1</kbd>–<kbd>9</kbd> or scroll select · <kbd>E</kbd> block list · <kbd>F</kbd> fly · <kbd>Esc</kbd> pause</div>
+      <div><kbd>H</kbd> hide the HUD · <kbd>R</kbd> restore the room to how it was</div>
+    </div>
+    <p class="muted" id="menu-note">Your changes save in this browser automatically.</p>
+  </div>
+</div>
+
+<div id="error" hidden></div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

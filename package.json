@@ -1,0 +1,17 @@
+{
+  "name": "cabincraft",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A voxel sandbox game set inside a real Estonian log-cabin room",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "test:unit": "node --test test/unit/*.test.js",
+    "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers playwright test",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

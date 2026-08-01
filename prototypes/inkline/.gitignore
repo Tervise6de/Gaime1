@@ -1,6 +1,0 @@
-node_modules/
-data/
-.env
-harness/results/
-test-results/
-playwright-report/
