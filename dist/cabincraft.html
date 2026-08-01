@@ -1,10 +1,16 @@
 <title>CabinCraft — the log-cabin room</title>
 <style>
 :root {
+  /* The room's own palette: lamp amber, pine, and the dark of the log walls.
+     A game screen is one committed visual world, so it stays dark in both
+     colour schemes rather than inverting into something it is not. */
   --ink: #f4efe6;
-  --panel: rgba(28, 20, 14, 0.82);
+  --panel: rgba(28, 20, 14, 0.86);
   --edge: rgba(244, 239, 230, 0.18);
   --accent: #e0b070;
+  --lamp: #fbf0d2;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 * { box-sizing: border-box; }
@@ -15,7 +21,7 @@ html, body {
   overflow: hidden;
   background: #10100f;
   color: var(--ink);
-  font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font: 14px/1.45 var(--mono);
   -webkit-user-select: none;
   user-select: none;
 }
@@ -156,25 +162,42 @@ html, body {
 }
 #menu.hidden { display: none; }
 .card {
-  width: min(620px, 92vw);
-  padding: 30px 34px 26px;
+  width: min(600px, 92vw);
+  padding: 38px 40px 30px;
   background: var(--panel);
   border: 1px solid var(--edge);
   border-radius: 14px;
   text-align: center;
+  /* the chandelier, spilling onto the card */
+  box-shadow: 0 -1px 60px -18px rgba(251, 240, 210, 0.5), 0 24px 60px -30px #000;
 }
 h1 {
-  margin: 0 0 6px;
-  font-size: 30px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
+  margin: 0 0 10px;
+  font-family: var(--serif);
+  font-size: clamp(38px, 7vw, 54px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.005em;
+  text-wrap: balance;
+  color: var(--lamp);
+  text-shadow: 0 0 34px rgba(224, 176, 112, 0.45);
 }
-.lede { margin: 0 auto 20px; max-width: 46ch; opacity: 0.86; font-size: 13px; }
+h1 span { color: var(--accent); }
+.lede {
+  margin: 0 auto 24px;
+  max-width: 52ch;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.55;
+  text-wrap: pretty;
+  opacity: 0.82;
+}
 button {
   font: inherit;
-  font-size: 15px;
-  padding: 11px 26px;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 13px 30px;
   color: #1a1310;
   background: var(--accent);
   border: 0;
@@ -183,6 +206,7 @@ button {
   letter-spacing: 0.06em;
 }
 button:hover { background: #f0c489; }
+button:focus-visible { outline: 2px solid var(--lamp); outline-offset: 3px; }
 .controls { margin-top: 22px; display: grid; gap: 6px; font-size: 11.5px; opacity: 0.78; }
 kbd {
   display: inline-block;
@@ -233,10 +257,10 @@ kbd {
 
 <div id="menu">
   <div class="card">
-    <h1>CabinCraft</h1>
-    <p class="lede">A voxel sandbox built inside one real room: a log cabin with a
-      board ceiling, lace curtains, a black piano, a shaggy green rug and the
-      afternoon light coming through the windows.</p>
+    <h1>Cabin<span>Craft</span></h1>
+    <p class="lede">A voxel sandbox built inside one real room — a log cabin with a
+      board ceiling, lace curtains, a black piano, a shaggy green rug, and the
+      afternoon coming in through the windows. Break any of it. Build it back.</p>
     <button id="play">Click to play</button>
     <div class="controls">
       <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Space</kbd> jump · <kbd>Shift</kbd> crouch / down · <kbd>Ctrl</kbd> sprint</div>

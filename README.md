@@ -12,11 +12,18 @@ Walk around it, break it, rebuild it. Everything you see is placeable.
 
 ## Play
 
-Requires Node 22+. No build step, no dependencies to run.
+Three ways, no build step and nothing to install for the first two:
 
-```
-npm run dev        # then open http://localhost:3000
-```
+* **Open `dist/cabincraft.html`** in any browser — the whole game inlined into
+  one self-contained file, playable straight from disk. Rebuild it with
+  `npm run bundle` after changing anything in `src/`.
+* **Serve it** with `npm run dev` (Node 22+), then open http://localhost:3000
+* **GitHub Pages** — the repository root is already a static site, so enabling
+  Pages on `main` publishes it as is.
+
+Mouse look uses pointer lock where the browser allows it; where it does not
+(inside an embedded frame, for instance) dragging the mouse looks around and a
+click without a drag still breaks or places a block.
 
 | Control | Action |
 |---|---|
