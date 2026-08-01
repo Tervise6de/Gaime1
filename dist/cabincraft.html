@@ -1,0 +1,2260 @@
+<title>CabinCraft — the log-cabin room</title>
+<style>
+:root {
+  --ink: #f4efe6;
+  --panel: rgba(28, 20, 14, 0.82);
+  --edge: rgba(244, 239, 230, 0.18);
+  --accent: #e0b070;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #10100f;
+  color: var(--ink);
+  font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#view {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+/* --- crosshair --- */
+#crosshair {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+#crosshair::before,
+#crosshair::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+}
+#crosshair::before { left: 8px; top: 0; width: 2px; height: 18px; }
+#crosshair::after { top: 8px; left: 0; height: 2px; width: 18px; }
+
+/* --- hud --- */
+#hud {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+/* --- hotbar --- */
+#hotbar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+}
+.slot {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.slot canvas { width: 34px; height: 34px; image-rendering: pixelated; border-radius: 2px; }
+.slot .num {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  font-size: 9px;
+  opacity: 0.6;
+}
+.slot.active { border-color: var(--accent); background: rgba(224, 176, 112, 0.16); }
+
+#held {
+  position: fixed;
+  left: 50%;
+  bottom: 74px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 3px #000;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+/* --- block picker --- */
+#picker {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, 92vw);
+  max-height: 78vh;
+  overflow: auto;
+  padding: 18px 20px 22px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+}
+#picker h2 { margin: 0 0 4px; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; }
+#picker-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+.pick {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.25;
+}
+.pick:hover { background: rgba(224, 176, 112, 0.18); border-color: var(--accent); }
+.pick canvas { width: 36px; height: 36px; image-rendering: pixelated; border-radius: 3px; }
+
+/* --- menu --- */
+#menu {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 40%, rgba(30, 22, 16, 0.72), rgba(10, 8, 6, 0.94));
+  backdrop-filter: blur(3px);
+  z-index: 10;
+}
+#menu.hidden { display: none; }
+.card {
+  width: min(620px, 92vw);
+  padding: 30px 34px 26px;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 14px;
+  text-align: center;
+}
+h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.lede { margin: 0 auto 20px; max-width: 46ch; opacity: 0.86; font-size: 13px; }
+button {
+  font: inherit;
+  font-size: 15px;
+  padding: 11px 26px;
+  color: #1a1310;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+}
+button:hover { background: #f0c489; }
+.controls { margin-top: 22px; display: grid; gap: 6px; font-size: 11.5px; opacity: 0.78; }
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  margin: 0 1px;
+  border: 1px solid var(--edge);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 10.5px;
+}
+.muted { opacity: 0.55; font-size: 11px; }
+#menu-note { margin-bottom: 0; margin-top: 18px; }
+
+#error {
+  position: fixed;
+  inset: auto 16px 16px;
+  padding: 12px 16px;
+  background: #5a1f1a;
+  border-radius: 8px;
+  z-index: 20;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+</style>
+<canvas id="view"></canvas>
+
+<div id="crosshair" hidden></div>
+
+<div id="hud" hidden>
+  <div id="hud-left">
+    <div><b>CabinCraft</b></div>
+    <div id="hud-pos">x 0  y 0  z 0</div>
+    <div id="hud-look">looking at —</div>
+    <div id="hud-perf">— fps</div>
+  </div>
+</div>
+
+<div id="hotbar" hidden></div>
+<div id="held" hidden></div>
+
+<div id="picker" hidden>
+  <h2>Blocks</h2>
+  <p class="muted">Click a block to put it in slot <span id="picker-slot">1</span>. Press <kbd>E</kbd> or <kbd>Esc</kbd> to close.</p>
+  <div id="picker-grid"></div>
+</div>
+
+<div id="menu">
+  <div class="card">
+    <h1>CabinCraft</h1>
+    <p class="lede">A voxel sandbox built inside one real room: a log cabin with a
+      board ceiling, lace curtains, a black piano, a shaggy green rug and the
+      afternoon light coming through the windows.</p>
+    <button id="play">Click to play</button>
+    <div class="controls">
+      <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Space</kbd> jump · <kbd>Shift</kbd> crouch / down · <kbd>Ctrl</kbd> sprint</div>
+      <div><b>Left click</b> break · <b>Right click</b> place · <b>Middle click</b> or <kbd>Q</kbd> pick block</div>
+      <div><kbd>1</kbd>–<kbd>9</kbd> or scroll select · <kbd>E</kbd> block list · <kbd>F</kbd> fly · <kbd>Esc</kbd> pause</div>
+      <div><kbd>H</kbd> hide the HUD · <kbd>R</kbd> restore the room to how it was</div>
+    </div>
+    <p class="muted" id="menu-note">Your changes save in this browser automatically.</p>
+  </div>
+</div>
+
+<div id="error" hidden></div>
+<script type="module">
+// ===== src/textures.js =====
+// Procedural 16x16 pixel textures, drawn into one atlas canvas.
+// Every material here is modelled on the reference photo of the cabin room:
+// pine log walls, board ceiling, wide pine floor, floral fabrics, shag rug.
+
+const TILE = 16;
+const ATLAS_COLS = 16;
+const ATLAS_SIZE = TILE * ATLAS_COLS;
+
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const clamp255 = (v) => (v < 0 ? 0 : v > 255 ? 255 : v | 0);
+const rgb = (r, g, b, a = 255) => [r, g, b, a];
+const shade = (c, f) => [clamp255(c[0] * f), clamp255(c[1] * f), clamp255(c[2] * f), c[3]];
+const mix = (a, b, t) => [
+  clamp255(a[0] + (b[0] - a[0]) * t),
+  clamp255(a[1] + (b[1] - a[1]) * t),
+  clamp255(a[2] + (b[2] - a[2]) * t),
+  clamp255(a[3] + (b[3] - a[3]) * t),
+];
+const TRANSPARENT = [0, 0, 0, 0];
+
+// --- material generators -----------------------------------------------
+// Each generator gets (put, rnd) where put(x, y, color) writes one texel.
+
+// Wide pine floorboards. `axis` 0 = seams run along x, 1 = along y.
+function boards(base, seamW, axis, grain = 0.09) {
+  return (put, rnd) => {
+    for (let y = 0; y < TILE; y++) {
+      for (let x = 0; x < TILE; x++) {
+        const along = axis === 0 ? x : y;
+        const across = axis === 0 ? y : x;
+        const board = Math.floor(across / seamW);
+        let c = shade(base, 0.9 + ((board * 37) % 5) * 0.045);
+        // long grain streaks
+        const streak = Math.sin(along * 0.9 + board * 3.1 + across * 0.4) * 0.5 + 0.5;
+        c = shade(c, 1 - grain * streak + rnd() * grain * 0.7);
+        if (across % seamW === 0) c = shade(c, 0.62); // seam shadow
+        if (across % seamW === seamW - 1) c = shade(c, 1.06); // lit edge
+        put(x, y, c);
+      }
+    }
+  };
+}
+
+// Horizontal round logs, as on the cabin's dark inner walls.
+function logWall(base, logH) {
+  return (put, rnd) => {
+    for (let y = 0; y < TILE; y++) {
+      const inLog = y % logH;
+      const t = inLog / (logH - 1); // 0 top .. 1 bottom of the log face
+      // rounded log: bright just above the middle, dark at both seams
+      const round = 1.16 - Math.abs(t - 0.42) * 0.85;
+      for (let x = 0; x < TILE; x++) {
+        let c = shade(base, round);
+        c = shade(c, 0.94 + Math.sin(x * 0.7 + Math.floor(y / logH) * 2.3) * 0.05 + rnd() * 0.06);
+        if (inLog === 0) c = shade(c, 0.45); // chinking seam
+        // occasional knot
+        const knotX = (Math.floor(y / logH) * 7 + 3) % 16;
+        if (inLog === Math.floor(logH / 2) && x === knotX) c = shade(c, 0.5);
+        put(x, y, c);
+      }
+    }
+  };
+}
+
+function fabric(base, rough = 0.1) {
+  return (put, rnd) => {
+    for (let y = 0; y < TILE; y++) {
+      for (let x = 0; x < TILE; x++) {
+        const weave = ((x + y) % 2 === 0 ? 1.03 : 0.97) * ((x % 4 === 0 || y % 4 === 0) ? 0.97 : 1);
+        put(x, y, shade(base, weave * (1 - rough / 2 + rnd() * rough)));
+      }
+    }
+  };
+}
+
+// Fabric with scattered blossoms — the beds and the armchair in the photo.
+function floral(base, petal, leaf, density = 0.9) {
+  const cloth = fabric(base, 0.08);
+  return (put, rnd) => {
+    const buf = [];
+    cloth((x, y, c) => { buf[y * TILE + x] = c; }, rnd);
+    const blooms = Math.max(1, Math.round(3 * density));
+    for (let i = 0; i < blooms; i++) {
+      const cx = Math.floor(rnd() * TILE);
+      const cy = Math.floor(rnd() * TILE);
+      for (const [dx, dy, kind] of [
+        [0, 0, 0], [1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0],
+        [1, 1, 1], [-1, -1, 1], [2, 0, 1], [-2, 1, 1],
+      ]) {
+        const x = (cx + dx + TILE) % TILE;
+        const y = (cy + dy + TILE) % TILE;
+        const col = kind === 0 ? petal : leaf;
+        buf[y * TILE + x] = shade(col, 0.86 + rnd() * 0.28);
+      }
+    }
+    for (let y = 0; y < TILE; y++) for (let x = 0; x < TILE; x++) put(x, y, buf[y * TILE + x]);
+  };
+}
+
+function noiseTile(a, b, scale = 1) {
+  return (put, rnd) => {
+    for (let y = 0; y < TILE; y++) {
+      for (let x = 0; x < TILE; x++) {
+        const n = rnd() * scale + (1 - scale) * 0.5;
+        put(x, y, mix(a, b, n));
+      }
+    }
+  };
+}
+
+// --- the atlas ----------------------------------------------------------
+
+const TILES = {}; // name -> tile index
+const GENERATORS = [];
+
+function define(name, gen) {
+  TILES[name] = GENERATORS.length;
+  GENERATORS.push(gen);
+  return TILES[name];
+}
+
+const PINE = rgb(196, 148, 96);
+const PINE_LIGHT = rgb(214, 172, 118);
+const PINE_DARK = rgb(120, 82, 48);
+const LOG_BROWN = rgb(126, 84, 50);
+const BEAM_BROWN = rgb(74, 47, 28);
+
+// --- structure
+define('floor_plank', boards(PINE, 8, 1, 0.1));
+define('floor_plank_dark', boards(shade(PINE, 0.78), 8, 1, 0.12));
+define('log_wall', logWall(LOG_BROWN, 4));
+define('log_wall_dark', logWall(shade(LOG_BROWN, 0.72), 4));
+define('plank_wall', boards(PINE_LIGHT, 4, 0, 0.08));
+define('ceil_plank', boards(rgb(206, 166, 116), 5, 0, 0.07));
+define('beam', boards(BEAM_BROWN, 16, 1, 0.16));
+define('stone', noiseTile(rgb(116, 116, 118), rgb(150, 150, 152), 0.9));
+
+// --- window
+define('glass', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const edge = x === 0 || y === 0 || x === TILE - 1 || y === TILE - 1;
+      const bar = x === 8 || y === 8;
+      if (edge) put(x, y, rgb(232, 228, 218, 255));
+      else if (bar) put(x, y, rgb(238, 234, 226, 235));
+      else {
+        const sheen = x + y > 20 && x + y < 24 ? 60 : 0;
+        put(x, y, rgb(212 + sheen, 226 + sheen, 236, 46 + sheen / 2 + rnd() * 8));
+      }
+    }
+  }
+});
+define('curtain', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const fold = Math.sin(x * 1.15) * 0.5 + 0.5;
+      let c = mix(rgb(224, 220, 210), rgb(255, 253, 248), fold);
+      c = shade(c, 0.97 + rnd() * 0.05);
+      if (y < 2) c = shade(c, 0.86); // gathered top
+      put(x, y, c);
+    }
+  }
+});
+define('radiator', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const fin = x % 3;
+      let c = fin === 0 ? rgb(198, 196, 190) : rgb(238, 237, 232);
+      if (y < 2 || y > TILE - 3) c = rgb(226, 225, 220);
+      put(x, y, shade(c, 0.98 + rnd() * 0.04));
+    }
+  }
+});
+
+// --- lights
+define('lamp', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const d = Math.hypot(x - 7.5, y - 7.5) / 11;
+      put(x, y, shade(mix(rgb(255, 250, 226), rgb(246, 214, 150), d), 0.97 + rnd() * 0.06));
+    }
+  }
+});
+
+// --- furniture
+define('piano', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      let c = rgb(30, 22, 20);
+      const sheen = Math.max(0, 1 - Math.abs(x - 4) / 3) * 0.5 + Math.max(0, 1 - Math.abs(y - 12) / 6) * 0.15;
+      c = mix(c, rgb(96, 78, 70), sheen);
+      put(x, y, shade(c, 0.94 + rnd() * 0.1));
+    }
+  }
+});
+define('piano_keys', (put) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      if (y < 3) put(x, y, rgb(28, 20, 18));
+      else if (x % 4 === 3) put(x, y, y < 10 ? rgb(20, 16, 14) : rgb(242, 238, 228));
+      else put(x, y, x % 4 === 0 ? rgb(214, 210, 200) : rgb(246, 243, 234));
+    }
+  }
+});
+define('bed_white', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const quilt = (x % 8 === 0 || y % 8 === 0) ? 0.9 : 1;
+      const puff = Math.sin(x * 0.8) * Math.sin(y * 0.8) * 0.05 + 1;
+      put(x, y, shade(rgb(233, 231, 224), quilt * puff * (0.98 + rnd() * 0.04)));
+    }
+  }
+});
+define('bed_floral', floral(rgb(224, 214, 196), rgb(196, 74, 84), rgb(96, 128, 78), 1.2));
+define('chair_floral', floral(rgb(152, 160, 172), rgb(214, 220, 228), rgb(74, 92, 108), 1.8));
+define('sofa_beige', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const stripe = y % 6 === 0 ? 0.9 : 1;
+      put(x, y, shade(rgb(208, 190, 162), stripe * (0.96 + rnd() * 0.09)));
+    }
+  }
+});
+define('blanket_yellow', fabric(rgb(226, 190, 62), 0.12));
+define('blanket_blue', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const band = y % 8 < 2 ? rgb(240, 240, 244) : rgb(38, 74, 148);
+      put(x, y, shade(band, 0.96 + rnd() * 0.09));
+    }
+  }
+});
+define('paper_bag', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      let c = rgb(174, 134, 88);
+      if (x === 5 || x === 11) c = shade(c, 0.86); // fold
+      if (y < 2) c = shade(c, 1.08); // rolled rim
+      put(x, y, shade(c, 0.96 + rnd() * 0.08));
+    }
+  }
+});
+define('metal', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const hi = Math.max(0, 1 - Math.abs(x - 5) / 2.5);
+      const base = mix(rgb(58, 60, 66), rgb(236, 238, 242), hi * 0.9);
+      put(x, y, shade(y % 7 === 0 ? shade(base, 0.7) : base, 0.95 + rnd() * 0.1));
+    }
+  }
+});
+
+// --- rugs
+define('rug_green', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      // shag: chunky tufts of several greens
+      const tuft = rnd();
+      let c = tuft < 0.3 ? rgb(46, 62, 34) : tuft < 0.65 ? rgb(74, 96, 52) : tuft < 0.9 ? rgb(104, 124, 70) : rgb(132, 148, 96);
+      if (rnd() < 0.04) c = rgb(122, 46, 52); // the odd red tuft, as in the photo
+      put(x, y, c);
+    }
+  }
+});
+define('rug_grey', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const weave = (x % 2 === 0) !== (y % 2 === 0) ? 0.94 : 1.02;
+      put(x, y, shade(rgb(112, 114, 116), weave * (0.97 + rnd() * 0.06)));
+    }
+  }
+});
+define('rug_red', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const ring = Math.max(Math.abs(x - 7.5), Math.abs(y - 7.5));
+      let c = ring > 6 ? rgb(58, 34, 30) : ring > 4 ? rgb(140, 52, 44) : ring > 2 ? rgb(96, 40, 38) : rgb(158, 70, 54);
+      put(x, y, shade(c, 0.95 + rnd() * 0.1));
+    }
+  }
+});
+define('wall_rug', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      let c = rgb(96, 88, 76);
+      const diamond = (Math.abs((x % 8) - 4) + Math.abs((y % 8) - 4)) < 3;
+      if (diamond) c = rgb(126, 116, 100);
+      if (y > TILE - 3) c = rgb(150, 142, 126); // fringe
+      put(x, y, shade(c, 0.93 + rnd() * 0.12));
+    }
+  }
+});
+define('picture', (put) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const edge = x < 2 || y < 2 || x > TILE - 3 || y > TILE - 3;
+      if (edge) put(x, y, rgb(88, 60, 34));
+      else if (y > 10) put(x, y, rgb(64, 72, 46)); // dark meadow
+      else put(x, y, mix(rgb(112, 106, 88), rgb(158, 146, 120), y / 10)); // aged sky
+    }
+  }
+});
+
+// --- plants and outdoors
+define('plant', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const leaf = Math.sin(x * 0.9 + y * 0.5) + Math.cos(y * 0.8 - x * 0.3);
+      let c = leaf > 0.6 ? rgb(70, 108, 52) : leaf > -0.4 ? rgb(46, 80, 38) : rgb(30, 58, 28);
+      if (rnd() < 0.06) c = rgb(96, 132, 62); // fresh growth
+      put(x, y, c);
+    }
+  }
+});
+define('pot', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      let c = y < 3 ? rgb(150, 92, 62) : rgb(126, 74, 50);
+      put(x, y, shade(c, 0.95 + rnd() * 0.1));
+    }
+  }
+});
+define('flower_pink', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) for (let x = 0; x < TILE; x++) put(x, y, TRANSPARENT);
+  for (let y = 6; y < TILE; y++) {
+    put(7 + (y % 2), y, rgb(72, 104, 54));
+    if (y > 9) put(6 - (y % 2), y, rgb(64, 94, 48));
+  }
+  for (const [cx, cy] of [[7, 4], [4, 7], [11, 6]]) {
+    for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1]]) {
+      const x = cx + dx;
+      const y = cy + dy;
+      if (x < 0 || y < 0 || x >= TILE || y >= TILE) continue;
+      put(x, y, shade(dx === 0 && dy === 0 ? rgb(252, 236, 240) : rgb(238, 176, 194), 0.92 + rnd() * 0.16));
+    }
+  }
+});
+define('grass_top', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const n = rnd();
+      put(x, y, n < 0.35 ? rgb(88, 128, 56) : n < 0.75 ? rgb(104, 146, 62) : rgb(122, 162, 74));
+    }
+  }
+});
+define('grass_side', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const topDepth = 3 + ((x * 7) % 3);
+      if (y < topDepth) put(x, y, rnd() < 0.5 ? rgb(96, 138, 58) : rgb(112, 152, 68));
+      else put(x, y, shade(rgb(126, 96, 64), 0.92 + rnd() * 0.16));
+    }
+  }
+});
+define('dirt', noiseTile(rgb(108, 80, 54), rgb(140, 106, 72), 0.85));
+define('bark', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const ridge = Math.sin(x * 2.1) * 0.5 + 0.5;
+      put(x, y, shade(mix(rgb(82, 58, 38), rgb(122, 92, 60), ridge), 0.94 + rnd() * 0.12));
+    }
+  }
+});
+define('log_top', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const r = Math.hypot(x - 7.5, y - 7.5);
+      const ring = Math.sin(r * 2.2) * 0.5 + 0.5;
+      put(x, y, shade(mix(rgb(168, 128, 84), rgb(198, 158, 108), ring), 0.96 + rnd() * 0.08));
+    }
+  }
+});
+define('leaves', (put, rnd) => {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      if (rnd() < 0.12) { put(x, y, TRANSPARENT); continue; }
+      const n = rnd();
+      put(x, y, n < 0.4 ? rgb(48, 84, 40) : n < 0.8 ? rgb(64, 104, 48) : rgb(84, 126, 58));
+    }
+  }
+});
+
+const TILE_COUNT = GENERATORS.length;
+
+/** Render every tile into one atlas canvas. */
+function buildAtlas(createCanvas) {
+  const canvas = createCanvas(ATLAS_SIZE, ATLAS_SIZE);
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(ATLAS_SIZE, ATLAS_SIZE);
+  for (let i = 0; i < GENERATORS.length; i++) {
+    const ox = (i % ATLAS_COLS) * TILE;
+    const oy = Math.floor(i / ATLAS_COLS) * TILE;
+    const rnd = mulberry32(0x9e37 + i * 2654435761);
+    GENERATORS[i]((x, y, c) => {
+      if (x < 0 || y < 0 || x >= TILE || y >= TILE) return;
+      const p = ((oy + y) * ATLAS_SIZE + (ox + x)) * 4;
+      img.data[p] = c[0];
+      img.data[p + 1] = c[1];
+      img.data[p + 2] = c[2];
+      img.data[p + 3] = c[3] === undefined ? 255 : c[3];
+    }, rnd);
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
+
+// ===== src/blocks.js =====
+// Block registry. Every block maps to atlas tiles per face and to the
+// physical properties the world, lighting and physics code needs.
+
+const AIR = 0;
+
+const BLOCKS = [{ id: 0, name: 'Air', solid: false, opaque: false, tiles: null }];
+const BY_NAME = {};
+
+function block(name, spec) {
+  const id = BLOCKS.length;
+  const t = spec.tiles;
+  const tiles = typeof t === 'string'
+    ? { top: t, bottom: t, side: t }
+    : { top: t.top ?? t.side, bottom: t.bottom ?? t.top ?? t.side, side: t.side ?? t.top };
+  const def = {
+    id,
+    name,
+    label: spec.label ?? name,
+    solid: spec.solid !== false,
+    opaque: spec.opaque !== false,
+    light: spec.light ?? 0,
+    blend: spec.blend === true, // drawn in the translucent pass
+    cutout: spec.cutout === true, // alpha-tested, does not hide neighbours
+    tiles: {
+      top: TILES[tiles.top],
+      bottom: TILES[tiles.bottom],
+      side: TILES[tiles.side],
+    },
+  };
+  BLOCKS.push(def);
+  BY_NAME[name] = id;
+  return id;
+}
+
+// --- cabin structure
+const FLOOR = block('floor', { label: 'Pine floorboard', tiles: { top: 'floor_plank', side: 'floor_plank', bottom: 'floor_plank_dark' } });
+const FLOOR_DARK = block('floor_dark', { label: 'Dark floorboard', tiles: 'floor_plank_dark' });
+const LOG = block('log', { label: 'Log wall', tiles: { side: 'log_wall', top: 'log_top' } });
+const LOG_DARK = block('log_dark', { label: 'Aged log wall', tiles: { side: 'log_wall_dark', top: 'log_top' } });
+const PANEL = block('panel', { label: 'Pine panelling', tiles: 'plank_wall' });
+const CEILING = block('ceiling', { label: 'Ceiling board', tiles: 'ceil_plank' });
+const BEAM = block('beam', { label: 'Roof beam', tiles: 'beam' });
+const STONE = block('stone', { label: 'Stone', tiles: 'stone' });
+
+// --- window
+const GLASS = block('glass', { label: 'Window pane', tiles: 'glass', opaque: false, blend: true });
+const CURTAIN = block('curtain', { label: 'Lace curtain', tiles: 'curtain' });
+const RADIATOR = block('radiator', { label: 'Radiator', tiles: 'radiator' });
+
+// --- lights
+const LAMP = block('lamp', { label: 'Chandelier globe', tiles: 'lamp', light: 15 });
+
+// --- furniture
+const PIANO = block('piano', { label: 'Black piano', tiles: { side: 'piano', top: 'piano_keys' } });
+const BED_WHITE = block('bed_white', { label: 'White bed', tiles: 'bed_white' });
+const BED_FLORAL = block('bed_floral', { label: 'Floral bed', tiles: 'bed_floral' });
+const ARMCHAIR = block('armchair', { label: 'Floral armchair', tiles: 'chair_floral' });
+const SOFA = block('sofa', { label: 'Beige sofa', tiles: 'sofa_beige' });
+const BLANKET_YELLOW = block('blanket_yellow', { label: 'Yellow blanket', tiles: 'blanket_yellow' });
+const BLANKET_BLUE = block('blanket_blue', { label: 'Blue bag', tiles: 'blanket_blue' });
+const PAPER_BAG = block('paper_bag', { label: 'Paper bag', tiles: 'paper_bag' });
+const METAL = block('metal', { label: 'Steel frame', tiles: 'metal' });
+
+// --- textiles
+const RUG_GREEN = block('rug_green', { label: 'Green shag rug', tiles: 'rug_green' });
+const RUG_GREY = block('rug_grey', { label: 'Grey rug', tiles: 'rug_grey' });
+const RUG_RED = block('rug_red', { label: 'Red rug', tiles: 'rug_red' });
+const WALL_RUG = block('wall_rug', { label: 'Wall hanging', tiles: 'wall_rug' });
+const PICTURE = block('picture', { label: 'Framed picture', tiles: 'picture' });
+
+// --- plants and outdoors
+const PLANT = block('plant', { label: 'House plant', tiles: 'plant' });
+const POT = block('pot', { label: 'Clay pot', tiles: 'pot' });
+const FLOWER = block('flower', { label: 'Pink peony', tiles: 'flower_pink', solid: false, opaque: false, cutout: true });
+const GRASS = block('grass', { label: 'Grass', tiles: { top: 'grass_top', side: 'grass_side', bottom: 'dirt' } });
+const DIRT = block('dirt', { label: 'Dirt', tiles: 'dirt' });
+const TREE = block('tree', { label: 'Tree trunk', tiles: { side: 'bark', top: 'log_top' } });
+const LEAVES = block('leaves', { label: 'Leaves', tiles: 'leaves', opaque: false, cutout: true });
+
+function blockDef(id) {
+  return BLOCKS[id] || BLOCKS[0];
+}
+
+function isSolid(id) {
+  return id !== AIR && BLOCKS[id].solid;
+}
+
+function isOpaque(id) {
+  return id !== AIR && BLOCKS[id].opaque;
+}
+
+/** Light lost when passing through this block (opaque blocks stop light entirely). */
+function lightCost(id) {
+  if (id === AIR) return 1;
+  const b = BLOCKS[id];
+  if (b.opaque) return Infinity;
+  return 1; // glass and leaves pass light with the same falloff as air
+}
+
+function emitsLight(id) {
+  return id === AIR ? 0 : BLOCKS[id].light;
+}
+
+const ALL_BLOCKS = BLOCKS;
+
+/** Blocks offered in the hotbar / picker, in a sensible building order. */
+const PALETTE = [
+  LOG, PANEL, CEILING, BEAM, FLOOR, FLOOR_DARK, STONE,
+  GLASS, CURTAIN, RADIATOR, LAMP,
+  PIANO, BED_WHITE, BED_FLORAL, ARMCHAIR, SOFA, BLANKET_YELLOW, BLANKET_BLUE, PAPER_BAG, METAL,
+  RUG_GREEN, RUG_GREY, RUG_RED, WALL_RUG, PICTURE,
+  PLANT, POT, FLOWER, GRASS, DIRT, TREE, LEAVES,
+];
+
+
+// ===== src/world.js =====
+// Voxel storage, flood-fill lighting and ray casting.
+
+const CHUNK = 16;
+
+class World {
+  constructor(sx = 64, sy = 32, sz = 64) {
+    this.sx = sx;
+    this.sy = sy;
+    this.sz = sz;
+    this.voxels = new Uint8Array(sx * sy * sz);
+    this.sky = new Uint8Array(sx * sy * sz);
+    this.block = new Uint8Array(sx * sy * sz);
+    this.cx = Math.ceil(sx / CHUNK);
+    this.cy = Math.ceil(sy / CHUNK);
+    this.cz = Math.ceil(sz / CHUNK);
+    this.edits = new Map(); // index -> id, so a session can be saved compactly
+  }
+
+  idx(x, y, z) {
+    return (y * this.sz + z) * this.sx + x;
+  }
+
+  inBounds(x, y, z) {
+    return x >= 0 && y >= 0 && z >= 0 && x < this.sx && y < this.sy && z < this.sz;
+  }
+
+  get(x, y, z) {
+    if (!this.inBounds(x, y, z)) return AIR;
+    return this.voxels[this.idx(x, y, z)];
+  }
+
+  /** Write without recording an edit — used by the world generator. */
+  setRaw(x, y, z, id) {
+    if (!this.inBounds(x, y, z)) return;
+    this.voxels[this.idx(x, y, z)] = id;
+  }
+
+  /** Player-made change: recorded for saving, lighting/meshes refreshed by the caller. */
+  set(x, y, z, id) {
+    if (!this.inBounds(x, y, z)) return false;
+    const i = this.idx(x, y, z);
+    if (this.voxels[i] === id) return false;
+    this.voxels[i] = id;
+    this.edits.set(i, id);
+    return true;
+  }
+
+  isSolidAt(x, y, z) {
+    // Outside the world horizontally is solid so the player cannot walk off the map;
+    // above the sky and below bedrock behave as open/solid respectively.
+    if (y < 0) return true;
+    if (y >= this.sy) return false;
+    if (x < 0 || z < 0 || x >= this.sx || z >= this.sz) return true;
+    return isSolid(this.voxels[this.idx(x, y, z)]);
+  }
+
+  skyAt(x, y, z) {
+    if (y >= this.sy) return 15;
+    if (!this.inBounds(x, y, z)) return 0;
+    return this.sky[this.idx(x, y, z)];
+  }
+
+  blockLightAt(x, y, z) {
+    if (!this.inBounds(x, y, z)) return 0;
+    return this.block[this.idx(x, y, z)];
+  }
+
+  /** Daylight falls down every open column, then both light types flood sideways. */
+  computeLight() {
+    const { sx, sy, sz, voxels, sky, block } = this;
+    sky.fill(0);
+    block.fill(0);
+    const queue = [];
+
+    for (let z = 0; z < sz; z++) {
+      for (let x = 0; x < sx; x++) {
+        let level = 15;
+        for (let y = sy - 1; y >= 0; y--) {
+          const i = this.idx(x, y, z);
+          const id = voxels[i];
+          const cost = lightCost(id);
+          if (cost === Infinity) break;
+          if (id !== AIR) level = Math.max(0, level - (cost - 1));
+          sky[i] = level;
+          if (level > 0) queue.push(i);
+        }
+      }
+    }
+    this.#flood(sky, queue);
+
+    const lit = [];
+    for (let i = 0; i < voxels.length; i++) {
+      const e = emitsLight(voxels[i]);
+      if (e > 0) {
+        block[i] = e;
+        lit.push(i);
+      }
+    }
+    this.#flood(block, lit);
+  }
+
+  #flood(field, queue) {
+    const { sx, sy, sz, voxels } = this;
+    let head = 0;
+    while (head < queue.length) {
+      const i = queue[head++];
+      const level = field[i];
+      if (level <= 1) continue;
+      const x = i % sx;
+      const z = Math.floor(i / sx) % sz;
+      const y = Math.floor(i / (sx * sz));
+      for (const [dx, dy, dz] of NEIGHBOURS) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const nz = z + dz;
+        if (nx < 0 || ny < 0 || nz < 0 || nx >= sx || ny >= sy || nz >= sz) continue;
+        const ni = this.idx(nx, ny, nz);
+        const cost = lightCost(voxels[ni]);
+        if (cost === Infinity) continue;
+        const next = level - cost;
+        if (next > field[ni]) {
+          field[ni] = next;
+          queue.push(ni);
+        }
+      }
+    }
+  }
+
+  /**
+   * Step a ray through the voxel grid (Amanatides & Woo).
+   * Returns the first solid block hit plus the face normal, or null.
+   */
+  raycast(origin, dir, maxDist = 10) {
+    let x = Math.floor(origin[0]);
+    let y = Math.floor(origin[1]);
+    let z = Math.floor(origin[2]);
+    const step = [Math.sign(dir[0]), Math.sign(dir[1]), Math.sign(dir[2])];
+    const tDelta = [
+      dir[0] === 0 ? Infinity : Math.abs(1 / dir[0]),
+      dir[1] === 0 ? Infinity : Math.abs(1 / dir[1]),
+      dir[2] === 0 ? Infinity : Math.abs(1 / dir[2]),
+    ];
+    const bound = (o, d, c) => (d > 0 ? c + 1 - o : o - c);
+    const tMax = [
+      dir[0] === 0 ? Infinity : bound(origin[0], dir[0], x) * tDelta[0],
+      dir[1] === 0 ? Infinity : bound(origin[1], dir[1], y) * tDelta[1],
+      dir[2] === 0 ? Infinity : bound(origin[2], dir[2], z) * tDelta[2],
+    ];
+    let normal = [0, 0, 0];
+    let t = 0;
+    while (t <= maxDist) {
+      if (this.inBounds(x, y, z) && this.voxels[this.idx(x, y, z)] !== AIR) {
+        return { x, y, z, id: this.voxels[this.idx(x, y, z)], normal, distance: t };
+      }
+      if (tMax[0] < tMax[1] && tMax[0] < tMax[2]) {
+        x += step[0];
+        t = tMax[0];
+        tMax[0] += tDelta[0];
+        normal = [-step[0], 0, 0];
+      } else if (tMax[1] < tMax[2]) {
+        y += step[1];
+        t = tMax[1];
+        tMax[1] += tDelta[1];
+        normal = [0, -step[1], 0];
+      } else {
+        z += step[2];
+        t = tMax[2];
+        tMax[2] += tDelta[2];
+        normal = [0, 0, -step[2]];
+      }
+    }
+    return null;
+  }
+
+  chunkKey(cx, cy, cz) {
+    return (cy * this.cz + cz) * this.cx + cx;
+  }
+
+  chunkOf(x, y, z) {
+    return this.chunkKey(Math.floor(x / CHUNK), Math.floor(y / CHUNK), Math.floor(z / CHUNK));
+  }
+
+  /** Chunks touching a block, including neighbours across a chunk border. */
+  chunksAround(x, y, z) {
+    const keys = new Set();
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dz = -1; dz <= 1; dz++) {
+          const nx = x + dx;
+          const ny = y + dy;
+          const nz = z + dz;
+          if (!this.inBounds(nx, ny, nz)) continue;
+          keys.add(this.chunkOf(nx, ny, nz));
+        }
+      }
+    }
+    return keys;
+  }
+
+  saveEdits() {
+    return JSON.stringify([...this.edits].map(([i, id]) => [i, id]));
+  }
+
+  loadEdits(json) {
+    let list;
+    try {
+      list = JSON.parse(json);
+    } catch {
+      return 0;
+    }
+    if (!Array.isArray(list)) return 0;
+    let n = 0;
+    for (const entry of list) {
+      if (!Array.isArray(entry) || entry.length !== 2) continue;
+      const [i, id] = entry;
+      if (!Number.isInteger(i) || i < 0 || i >= this.voxels.length) continue;
+      if (!Number.isInteger(id) || id < 0 || id > 255) continue;
+      this.voxels[i] = id;
+      this.edits.set(i, id);
+      n++;
+    }
+    return n;
+  }
+}
+
+const NEIGHBOURS = [
+  [1, 0, 0], [-1, 0, 0],
+  [0, 1, 0], [0, -1, 0],
+  [0, 0, 1], [0, 0, -1],
+];
+
+
+
+// ===== src/mat4.js =====
+// Minimal 4x4 matrix helpers (column-major, like GLSL expects).
+
+function perspective(fovy, aspect, near, far) {
+  const f = 1 / Math.tan(fovy / 2);
+  const nf = 1 / (near - far);
+  return new Float32Array([
+    f / aspect, 0, 0, 0,
+    0, f, 0, 0,
+    0, 0, (far + near) * nf, -1,
+    0, 0, 2 * far * near * nf, 0,
+  ]);
+}
+
+function lookAt(eye, target, up = [0, 1, 0]) {
+  let zx = eye[0] - target[0];
+  let zy = eye[1] - target[1];
+  let zz = eye[2] - target[2];
+  let len = Math.hypot(zx, zy, zz) || 1;
+  zx /= len; zy /= len; zz /= len;
+
+  let xx = up[1] * zz - up[2] * zy;
+  let xy = up[2] * zx - up[0] * zz;
+  let xz = up[0] * zy - up[1] * zx;
+  len = Math.hypot(xx, xy, xz) || 1;
+  xx /= len; xy /= len; xz /= len;
+
+  const yx = zy * xz - zz * xy;
+  const yy = zz * xx - zx * xz;
+  const yz = zx * xy - zy * xx;
+
+  return new Float32Array([
+    xx, yx, zx, 0,
+    xy, yy, zy, 0,
+    xz, yz, zz, 0,
+    -(xx * eye[0] + xy * eye[1] + xz * eye[2]),
+    -(yx * eye[0] + yy * eye[1] + yz * eye[2]),
+    -(zx * eye[0] + zy * eye[1] + zz * eye[2]),
+    1,
+  ]);
+}
+
+function multiply(a, b) {
+  const out = new Float32Array(16);
+  for (let c = 0; c < 4; c++) {
+    for (let r = 0; r < 4; r++) {
+      out[c * 4 + r] =
+        a[r] * b[c * 4] +
+        a[4 + r] * b[c * 4 + 1] +
+        a[8 + r] * b[c * 4 + 2] +
+        a[12 + r] * b[c * 4 + 3];
+    }
+  }
+  return out;
+}
+
+/** Unit direction the camera is looking, from yaw (around Y) and pitch. */
+function forwardVector(yaw, pitch) {
+  const cp = Math.cos(pitch);
+  return [-Math.sin(yaw) * cp, Math.sin(pitch), -Math.cos(yaw) * cp];
+}
+
+
+// ===== src/mesher.js =====
+// Turns a chunk of voxels into a renderable mesh: hidden faces are dropped,
+// corners get ambient occlusion and each vertex samples the light field so
+// daylight from the windows and the chandelier glow blend smoothly.
+
+
+
+// origin + u*U + v*V walks the four corners of a face, counter-clockwise.
+const FACES = [
+  { n: [1, 0, 0], o: [1, 0, 0], u: [0, 0, 1], v: [0, 1, 0], side: 'side', shade: 0.82 },
+  { n: [-1, 0, 0], o: [0, 0, 0], u: [0, 0, 1], v: [0, 1, 0], side: 'side', shade: 0.78 },
+  { n: [0, 1, 0], o: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1], side: 'top', shade: 1.0 },
+  { n: [0, -1, 0], o: [0, 0, 0], u: [1, 0, 0], v: [0, 0, 1], side: 'bottom', shade: 0.55 },
+  { n: [0, 0, 1], o: [0, 0, 1], u: [1, 0, 0], v: [0, 1, 0], side: 'side', shade: 0.92 },
+  { n: [0, 0, -1], o: [0, 0, 0], u: [1, 0, 0], v: [0, 1, 0], side: 'side', shade: 0.88 },
+];
+
+const CORNERS = [[0, 0], [0, 1], [1, 1], [1, 0]];
+const AO_LEVELS = [0.48, 0.68, 0.85, 1.0];
+const AMBIENT = 0.3; // a cabin interior is dim, never pitch black
+const INSET = 0.5 / ATLAS_SIZE;
+const TS = 1 / ATLAS_COLS;
+
+function tileUV(tile, cu, cv) {
+  const tx = (tile % ATLAS_COLS) * TS;
+  const ty = Math.floor(tile / ATLAS_COLS) * TS;
+  return [
+    tx + INSET + cu * (TS - 2 * INSET),
+    ty + INSET + (1 - cv) * (TS - 2 * INSET),
+  ];
+}
+
+function lightValue(world, x, y, z) {
+  const sky = world.skyAt(x, y, z);
+  const blk = world.blockLightAt(x, y, z);
+  return Math.max(sky, blk) / 15;
+}
+
+/**
+ * Build the two meshes (solid pass and translucent pass) for one chunk.
+ * Returns interleaved vertices: x, y, z, u, v, light.
+ */
+function buildChunkMesh(world, cx, cy, cz) {
+  const solid = { verts: [], idx: [] };
+  const blend = { verts: [], idx: [] };
+  const x0 = cx * CHUNK;
+  const y0 = cy * CHUNK;
+  const z0 = cz * CHUNK;
+
+  for (let x = x0; x < Math.min(x0 + CHUNK, world.sx); x++) {
+    for (let y = y0; y < Math.min(y0 + CHUNK, world.sy); y++) {
+      for (let z = z0; z < Math.min(z0 + CHUNK, world.sz); z++) {
+        const id = world.get(x, y, z);
+        if (id === AIR) continue;
+        const def = blockDef(id);
+        const target = def.blend ? blend : solid;
+
+        for (const face of FACES) {
+          const nx = x + face.n[0];
+          const ny = y + face.n[1];
+          const nz = z + face.n[2];
+          const neighbour = world.inBounds(nx, ny, nz) ? world.get(nx, ny, nz) : AIR;
+          if (isOpaque(neighbour)) continue;
+          if (neighbour === id && (def.blend || def.cutout)) continue;
+
+          const tile = def.tiles[face.side];
+          const start = target.verts.length / 6;
+          for (const [cu, cv] of CORNERS) {
+            const px = x + face.o[0] + cu * face.u[0] + cv * face.v[0];
+            const py = y + face.o[1] + cu * face.u[1] + cv * face.v[1];
+            const pz = z + face.o[2] + cu * face.u[2] + cv * face.v[2];
+            const [tu, tv] = tileUV(tile, cu, cv);
+
+            // Sample the three neighbours that share this corner, one layer
+            // out along the face normal.
+            const su = cu ? 1 : -1;
+            const sv = cv ? 1 : -1;
+            const s1 = [nx + su * face.u[0], ny + su * face.u[1], nz + su * face.u[2]];
+            const s2 = [nx + sv * face.v[0], ny + sv * face.v[1], nz + sv * face.v[2]];
+            const dg = [s1[0] + s2[0] - nx, s1[1] + s2[1] - ny, s1[2] + s2[2] - nz];
+
+            const o1 = isOpaque(world.get(...s1));
+            const o2 = isOpaque(world.get(...s2));
+            const oc = isOpaque(world.get(...dg));
+            const ao = AO_LEVELS[o1 && o2 ? 0 : 3 - ((o1 ? 1 : 0) + (o2 ? 1 : 0) + (oc ? 1 : 0))];
+
+            let sum = 0;
+            let count = 0;
+            for (const c of [[nx, ny, nz], s1, s2, dg]) {
+              if (isOpaque(world.get(...c))) continue;
+              sum += lightValue(world, ...c);
+              count++;
+            }
+            const lit = count ? sum / count : lightValue(world, nx, ny, nz);
+            const light = Math.min(1, (AMBIENT + (1 - AMBIENT) * Math.pow(lit, 0.85)) * ao * face.shade);
+
+            target.verts.push(px, py, pz, tu, tv, light);
+          }
+          target.idx.push(start, start + 1, start + 2, start, start + 2, start + 3);
+        }
+      }
+    }
+  }
+
+  return {
+    solid: { verts: new Float32Array(solid.verts), idx: new Uint32Array(solid.idx) },
+    blend: { verts: new Float32Array(blend.verts), idx: new Uint32Array(blend.idx) },
+  };
+}
+
+
+// ===== src/room.js =====
+// Builds the cabin room from the reference photo, block by block.
+//
+// Orientation: you spawn at the near end (high Z) looking down the room (-Z),
+// exactly like the camera in the photo.
+//   -X = left  : pine-panelled wall, black piano, floral armchair, exercise
+//                bike, the long green shag rug
+//   +X = right : log wall with the curtained windows and radiators, the floral
+//                bed, the house plant, the beige sofa, the wall hanging
+//   -Z = far    : window over the white bed, framed pictures
+// One voxel is roughly 0.4 m, so the room is about 6.8 m x 12.4 m x 2.8 m.
+
+
+
+const ROOM = {
+  size: [64, 32, 64],
+  floorY: 8, // top surface of the floorboards
+  ceilY: 16,
+  minX: 14, maxX: 30, // interior, inclusive
+  minZ: 10, maxZ: 40,
+  spawn: [20.5, 9, 38.5],
+  spawnYaw: 0, // looking towards -Z, down the length of the room
+};
+
+function fill(w, x0, y0, z0, x1, y1, z1, id) {
+  for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
+    for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) {
+      for (let z = Math.min(z0, z1); z <= Math.max(z0, z1); z++) {
+        w.setRaw(x, y, z, id);
+      }
+    }
+  }
+}
+
+function tree(w, x, z, h = 6) {
+  const base = ROOM.floorY + 1;
+  fill(w, x, base, z, x, base + h, z, TREE);
+  const top = base + h;
+  for (let dy = -2; dy <= 2; dy++) {
+    const r = dy <= 0 ? 2 : dy === 1 ? 2 : 1;
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dz = -r; dz <= r; dz++) {
+        if (Math.abs(dx) === r && Math.abs(dz) === r && r > 1) continue;
+        if (dx === 0 && dz === 0 && dy <= 0) continue;
+        w.setRaw(x + dx, top + dy, z + dz, LEAVES);
+      }
+    }
+  }
+}
+
+function generateRoom(world = new World(...ROOM.size)) {
+  const { floorY, ceilY, minX, maxX, minZ, maxZ } = ROOM;
+  const wallMinX = minX - 1;
+  const wallMaxX = maxX + 1;
+  const wallMinZ = minZ - 1;
+  const wallMaxZ = maxZ + 1;
+  const { sx, sz } = world;
+
+  // --- ground and meadow outside ---------------------------------------
+  fill(world, 0, 0, 0, sx - 1, floorY - 4, sz - 1, STONE);
+  fill(world, 0, floorY - 3, 0, sx - 1, floorY - 1, sz - 1, DIRT);
+  fill(world, 0, floorY, 0, sx - 1, floorY, sz - 1, GRASS);
+
+  for (const [tx, tz, th] of [[6, 16, 7], [8, 30, 6], [5, 44, 8], [40, 12, 7], [44, 26, 6], [38, 46, 7], [52, 34, 8], [30, 53, 6], [14, 50, 7]]) {
+    tree(world, tx, tz, th);
+  }
+
+  // --- shell: floor, walls, ceiling -------------------------------------
+  fill(world, wallMinX, floorY, wallMinZ, wallMaxX, floorY, wallMaxZ, FLOOR);
+  fill(world, wallMinX, floorY + 1, wallMinZ, wallMaxX, ceilY, wallMaxZ, AIR);
+  fill(world, wallMinX, ceilY, wallMinZ, wallMaxX, ceilY, wallMaxZ, CEILING);
+
+  // Log walls all round; the near-left corner is lighter pine panelling,
+  // as in the photo where the boarded wall meets the darker logs.
+  fill(world, wallMinX, floorY + 1, wallMinZ, wallMinX, ceilY - 1, wallMaxZ, LOG);
+  fill(world, wallMaxX, floorY + 1, wallMinZ, wallMaxX, ceilY - 1, wallMaxZ, LOG);
+  fill(world, wallMinX, floorY + 1, wallMinZ, wallMaxX, ceilY - 1, wallMinZ, LOG_DARK);
+  fill(world, wallMinX, floorY + 1, wallMaxZ, wallMaxX, ceilY - 1, wallMaxZ, LOG);
+  fill(world, wallMinX, floorY + 1, 26, wallMinX, ceilY - 1, wallMaxZ, PANEL);
+
+  // Stub wall that juts in on the left, forming the archway in the photo.
+  fill(world, wallMinX + 1, floorY + 1, 25, wallMinX + 3, ceilY - 1, 25, PANEL);
+
+  // Dark beams under the ceiling, plus the long one running down the room.
+  for (const z of [13, 19, 25, 31, 37]) {
+    fill(world, wallMinX, ceilY - 1, z, wallMaxX, ceilY - 1, z, BEAM);
+  }
+  fill(world, 27, ceilY - 1, wallMinZ, 27, ceilY - 1, 24, BEAM);
+
+  // --- doorway at the near end, with a step down to the meadow ----------
+  fill(world, 20, floorY + 1, wallMaxZ, 23, floorY + 5, wallMaxZ, AIR);
+  fill(world, 20, floorY, wallMaxZ + 1, 23, floorY, wallMaxZ + 2, FLOOR_DARK);
+
+  // --- windows ----------------------------------------------------------
+  // Far wall, above the white bed.
+  cutWindow(world,'z', wallMinZ, 15, 17, 11, 13);
+  // Right-hand wall: the big curtained window with a radiator under it, and
+  // the second window further down the room.
+  cutWindow(world,'x', wallMaxX, 16, 19, 11, 13);
+  cutWindow(world,'x', wallMaxX, 24, 27, 11, 13);
+  fill(world, maxX, floorY + 1, 16, maxX, floorY + 2, 19, RADIATOR);
+  fill(world, maxX, floorY + 1, 24, maxX, floorY + 2, 27, RADIATOR);
+
+  // --- lights: the chandelier and the small ceiling lamp at the far end --
+  world.setRaw(22, ceilY - 1, 22, BEAM);
+  for (const [dx, dz] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    world.setRaw(22 + dx, ceilY - 2, 22 + dz, LAMP);
+  }
+  world.setRaw(20, ceilY - 1, 14, LAMP);
+  world.setRaw(24, ceilY - 1, 34, LAMP);
+
+  // --- rugs (woven into the floorboards, like carpets lying flat) --------
+  fill(world, 15, floorY, 28, 20, floorY, 40, RUG_GREEN);
+  fill(world, 21, floorY, 26, 27, floorY, 33, RUG_GREY);
+  fill(world, 16, floorY, 20, 19, floorY, 25, RUG_RED);
+
+  // --- the white bed under the far window -------------------------------
+  fill(world, 15, floorY + 1, 11, 19, floorY + 1, 17, FLOOR_DARK);
+  fill(world, 15, floorY + 2, 11, 19, floorY + 2, 17, BED_WHITE);
+  fill(world, 15, floorY + 3, 11, 18, floorY + 3, 12, BED_WHITE); // pillows
+
+  // --- the floral bed along the right-hand wall --------------------------
+  fill(world, 26, floorY + 1, 18, 30, floorY + 1, 25, FLOOR_DARK);
+  fill(world, 26, floorY + 2, 18, 30, floorY + 2, 25, BED_FLORAL);
+  fill(world, 27, floorY + 3, 18, 30, floorY + 3, 19, BED_FLORAL);
+
+  // --- floral armchair with cushions, left of the archway ----------------
+  fill(world, 14, floorY + 1, 29, 16, floorY + 2, 31, ARMCHAIR);
+  fill(world, 14, floorY + 3, 29, 14, floorY + 3, 31, ARMCHAIR); // back
+  fill(world, 16, floorY + 3, 29, 16, floorY + 3, 31, ARMCHAIR); // arm
+  world.setRaw(15, floorY + 3, 30, RUG_RED);
+  world.setRaw(15, floorY + 3, 31, BLANKET_BLUE);
+
+  // --- exercise bike ----------------------------------------------------
+  fill(world, 17, floorY + 1, 33, 17, floorY + 1, 35, METAL); // floor rails
+  fill(world, 17, floorY + 2, 34, 17, floorY + 3, 34, METAL); // upright
+  world.setRaw(17, floorY + 4, 35, METAL); // saddle
+  world.setRaw(17, floorY + 4, 33, METAL); // handlebars
+
+  // --- black piano against the panelled wall ----------------------------
+  fill(world, 14, floorY + 1, 35, 15, floorY + 3, 40, PIANO);
+  world.setRaw(14, floorY + 4, 36, FLOWER); // peonies on the lid
+  world.setRaw(15, floorY + 4, 39, PICTURE);
+
+  // --- beige sofa in the foreground, with throws and bags ---------------
+  fill(world, 25, floorY + 1, 35, 30, floorY + 2, 40, SOFA);
+  fill(world, 25, floorY + 3, 39, 30, floorY + 3, 40, SOFA); // backrest
+  fill(world, 21, floorY + 1, 36, 22, floorY + 1, 37, RUG_GREY); // low stool
+  fill(world, 21, floorY + 2, 36, 22, floorY + 2, 37, BLANKET_YELLOW);
+  world.setRaw(21, floorY + 3, 36, BLANKET_BLUE);
+  fill(world, 24, floorY + 1, 34, 24, floorY + 3, 35, PAPER_BAG);
+
+  // --- house plant beside the sofa --------------------------------------
+  fill(world, 29, floorY + 1, 27, 30, floorY + 1, 28, POT);
+  fill(world, 29, floorY + 2, 27, 30, floorY + 4, 28, PLANT);
+
+  // --- wall hanging, pictures and flowers --------------------------------
+  fill(world, maxX, 12, 11, maxX, ceilY - 1, 15, WALL_RUG);
+  fill(world, 21, 12, minZ, 22, 13, minZ, PICTURE);
+  world.setRaw(24, 13, minZ, PICTURE);
+  world.setRaw(26, floorY + 1, minZ, POT);
+  world.setRaw(26, floorY + 2, minZ, FLOWER);
+
+  // --- lace curtains around every window ---------------------------------
+  curtains(world, 'z', minZ, 14, 18, 11, 14);
+  curtains(world, 'x', maxX, 15, 20, 11, 14);
+  curtains(world, 'x', maxX, 23, 28, 11, 14);
+
+  // --- roof over the cabin ----------------------------------------------
+  const span = Math.floor((wallMaxX - wallMinX) / 2);
+  for (let k = 0; k <= span; k++) {
+    const y = ceilY + 1 + k;
+    fill(world, wallMinX + k, y, wallMinZ - 1, wallMinX + k, y, wallMaxZ + 1, BEAM);
+    fill(world, wallMaxX - k, y, wallMinZ - 1, wallMaxX - k, y, wallMaxZ + 1, BEAM);
+    // gable ends
+    fill(world, wallMinX + k, ceilY + 1, wallMinZ, wallMaxX - k, y, wallMinZ, LOG_DARK);
+    fill(world, wallMinX + k, ceilY + 1, wallMaxZ, wallMaxX - k, y, wallMaxZ, LOG);
+  }
+
+  world.computeLight();
+  return world;
+}
+
+/** Cut a window opening and glaze it. axis 'x' or 'z' names the wall plane. */
+function cutWindow(world, axis, at, a0, a1, y0, y1) {
+  for (let a = a0; a <= a1; a++) {
+    for (let y = y0; y <= y1; y++) {
+      if (axis === 'x') world.setRaw(at, y, a, GLASS);
+      else world.setRaw(a, y, at, GLASS);
+    }
+  }
+  // pine sill under the opening
+  for (let a = a0; a <= a1; a++) {
+    if (axis === 'x') world.setRaw(at, y0 - 1, a, PANEL);
+    else world.setRaw(a, y0 - 1, at, PANEL);
+  }
+}
+
+/** Hang curtains on the inside face of a window: side panels plus a valance. */
+function curtains(world, axis, inner, a0, a1, y0, y1) {
+  for (let y = y0; y <= y1; y++) {
+    for (const a of [a0, a1]) {
+      if (axis === 'x') world.setRaw(inner, y, a, CURTAIN);
+      else world.setRaw(a, y, inner, CURTAIN);
+    }
+  }
+  for (let a = a0; a <= a1; a++) {
+    if (axis === 'x') world.setRaw(inner, y1, a, CURTAIN);
+    else world.setRaw(a, y1, inner, CURTAIN);
+  }
+}
+
+
+// ===== src/player.js =====
+// Player physics: an axis-aligned box swept against the voxel grid.
+// Units are voxels (~0.4 m each), so the player is 1.76 m tall.
+
+const PLAYER = {
+  halfWidth: 0.35,
+  height: 4.4,
+  eye: 4.0,
+  crouchEye: 3.2,
+  walkSpeed: 9,
+  sprintSpeed: 14,
+  flySpeed: 18,
+  gravity: 58,
+  jumpSpeed: 13.5,
+  maxFall: 90,
+};
+
+class Player {
+  constructor(spawn, yaw = 0) {
+    this.pos = [...spawn]; // feet, centred horizontally
+    this.vel = [0, 0, 0];
+    this.yaw = yaw;
+    this.pitch = 0;
+    this.onGround = false;
+    this.flying = false;
+    this.crouching = false;
+    this.spawn = [...spawn];
+    this.spawnYaw = yaw;
+  }
+
+  get eyePosition() {
+    return [this.pos[0], this.pos[1] + (this.crouching ? PLAYER.crouchEye : PLAYER.eye), this.pos[2]];
+  }
+
+  respawn() {
+    this.pos = [...this.spawn];
+    this.vel = [0, 0, 0];
+    this.yaw = this.spawnYaw;
+    this.pitch = 0;
+  }
+
+  update(dt, input, world) {
+    const sin = Math.sin(this.yaw);
+    const cos = Math.cos(this.yaw);
+    // forward is -Z at yaw 0
+    let wx = 0;
+    let wz = 0;
+    if (input.forward) { wx -= sin; wz -= cos; }
+    if (input.back) { wx += sin; wz += cos; }
+    if (input.left) { wx -= cos; wz += sin; }
+    if (input.right) { wx += cos; wz -= sin; }
+    const len = Math.hypot(wx, wz);
+    if (len > 0) { wx /= len; wz /= len; }
+
+    this.crouching = !this.flying && input.down;
+    const speed = this.flying
+      ? PLAYER.flySpeed * (input.sprint ? 1.8 : 1)
+      : (input.sprint ? PLAYER.sprintSpeed : PLAYER.walkSpeed) * (this.crouching ? 0.45 : 1);
+
+    this.vel[0] = wx * speed;
+    this.vel[2] = wz * speed;
+
+    if (this.flying) {
+      this.vel[1] = (input.up ? 1 : 0) * speed - (input.down ? 1 : 0) * speed;
+    } else {
+      this.vel[1] -= PLAYER.gravity * dt;
+      if (this.vel[1] < -PLAYER.maxFall) this.vel[1] = -PLAYER.maxFall;
+      if (input.up && this.onGround) {
+        this.vel[1] = PLAYER.jumpSpeed;
+        this.onGround = false;
+      }
+    }
+
+    this.#move(world, this.vel[0] * dt, this.vel[1] * dt, this.vel[2] * dt);
+
+    if (this.pos[1] < -8) this.respawn();
+  }
+
+  #move(world, dx, dy, dz) {
+    this.onGround = false;
+    this.pos[0] += dx;
+    this.#resolve(world, 0, dx);
+    this.pos[1] += dy;
+    if (this.#resolve(world, 1, dy)) {
+      if (dy < 0) this.onGround = true;
+      this.vel[1] = 0;
+    }
+    this.pos[2] += dz;
+    this.#resolve(world, 2, dz);
+  }
+
+  /** Push the box out of any block it overlaps along one axis. */
+  #resolve(world, axis, delta) {
+    if (delta === 0) return false;
+    const h = PLAYER.halfWidth;
+    const height = this.crouching ? PLAYER.height - 0.9 : PLAYER.height;
+    const [px, py, pz] = this.pos;
+    const min = [px - h, py, pz - h];
+    const max = [px + h, py + height, pz + h];
+
+    const x0 = Math.floor(min[0]);
+    const x1 = Math.floor(max[0] - 1e-6);
+    const y0 = Math.floor(min[1]);
+    const y1 = Math.floor(max[1] - 1e-6);
+    const z0 = Math.floor(min[2]);
+    const z1 = Math.floor(max[2] - 1e-6);
+
+    // Snap to the blocking cell nearest the direction of travel, not merely
+    // the first one found — otherwise a box overlapping several blocks (a
+    // player who jumps into a ceiling, say) can be flung the wrong way.
+    let best = null;
+    for (let x = x0; x <= x1; x++) {
+      for (let y = y0; y <= y1; y++) {
+        for (let z = z0; z <= z1; z++) {
+          if (!world.isSolidAt(x, y, z)) continue;
+          const cell = [x, y, z][axis];
+          if (best === null || (delta > 0 ? cell < best : cell > best)) best = cell;
+        }
+      }
+    }
+    if (best === null) return false;
+
+    if (delta > 0) this.pos[axis] = best - (axis === 1 ? height : h) - 1e-4;
+    else this.pos[axis] = best + 1 + (axis === 1 ? 0 : h) + 1e-4;
+    if (axis !== 1) this.vel[axis] = 0;
+    return true;
+  }
+
+  /** True if the player box would overlap a solid block at this position. */
+  static intersectsSolid(world, pos, crouching = false) {
+    const h = PLAYER.halfWidth;
+    const height = crouching ? PLAYER.height - 0.9 : PLAYER.height;
+    for (let x = Math.floor(pos[0] - h); x <= Math.floor(pos[0] + h - 1e-6); x++) {
+      for (let y = Math.floor(pos[1]); y <= Math.floor(pos[1] + height - 1e-6); y++) {
+        for (let z = Math.floor(pos[2] - h); z <= Math.floor(pos[2] + h - 1e-6); z++) {
+          if (world.isSolidAt(x, y, z)) return true;
+        }
+      }
+    }
+    return false;
+  }
+}
+
+
+// ===== src/renderer.js =====
+// WebGL2 renderer: one chunk mesh per VAO, a solid pass and a translucent
+// pass for the window glass, plus the wireframe box around the targeted block.
+
+
+
+
+const VERT = `#version 300 es
+in vec3 aPos;
+in vec2 aUV;
+in float aLight;
+uniform mat4 uMVP;
+uniform vec3 uCam;
+out vec2 vUV;
+out float vLight;
+out float vDist;
+void main() {
+  vUV = aUV;
+  vLight = aLight;
+  vDist = distance(aPos, uCam);
+  gl_Position = uMVP * vec4(aPos, 1.0);
+}`;
+
+const FRAG = `#version 300 es
+precision mediump float;
+in vec2 vUV;
+in float vLight;
+in float vDist;
+uniform sampler2D uTex;
+uniform float uAlphaCut;
+uniform vec3 uFog;
+uniform float uFogNear;
+uniform float uFogFar;
+out vec4 outColor;
+void main() {
+  vec4 c = texture(uTex, vUV);
+  if (c.a < uAlphaCut) discard;
+  vec3 rgb = c.rgb * vLight;
+  float f = clamp((vDist - uFogNear) / (uFogFar - uFogNear), 0.0, 1.0);
+  rgb = mix(rgb, uFog, f * 0.9);
+  outColor = vec4(rgb, c.a);
+}`;
+
+const LINE_VERT = `#version 300 es
+in vec3 aPos;
+uniform mat4 uMVP;
+uniform vec3 uOffset;
+void main() { gl_Position = uMVP * vec4(aPos + uOffset, 1.0); }`;
+
+const LINE_FRAG = `#version 300 es
+precision mediump float;
+out vec4 outColor;
+void main() { outColor = vec4(0.05, 0.04, 0.03, 0.75); }`;
+
+const SKY = [0.62, 0.74, 0.86];
+
+function compile(gl, type, source) {
+  const sh = gl.createShader(type);
+  gl.shaderSource(sh, source);
+  gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+    throw new Error('Shader error: ' + gl.getShaderInfoLog(sh));
+  }
+  return sh;
+}
+
+function link(gl, vs, fs) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl, gl.VERTEX_SHADER, vs));
+  gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+    throw new Error('Program link error: ' + gl.getProgramInfoLog(p));
+  }
+  return p;
+}
+
+class Renderer {
+  constructor(canvas, world) {
+    const gl = canvas.getContext('webgl2', {
+      antialias: false,
+      alpha: false,
+      // keeps the frame readable for screenshots and the visual tests
+      preserveDrawingBuffer: true,
+    });
+    if (!gl) throw new Error('WebGL2 is not available in this browser.');
+    this.gl = gl;
+    this.canvas = canvas;
+    this.world = world;
+    this.chunks = new Map();
+    this.reach = 10; // voxels — about 4 m of arm's reach
+
+    this.program = link(gl, VERT, FRAG);
+    this.loc = {
+      mvp: gl.getUniformLocation(this.program, 'uMVP'),
+      cam: gl.getUniformLocation(this.program, 'uCam'),
+      tex: gl.getUniformLocation(this.program, 'uTex'),
+      alphaCut: gl.getUniformLocation(this.program, 'uAlphaCut'),
+      fog: gl.getUniformLocation(this.program, 'uFog'),
+      fogNear: gl.getUniformLocation(this.program, 'uFogNear'),
+      fogFar: gl.getUniformLocation(this.program, 'uFogFar'),
+      pos: gl.getAttribLocation(this.program, 'aPos'),
+      uv: gl.getAttribLocation(this.program, 'aUV'),
+      light: gl.getAttribLocation(this.program, 'aLight'),
+    };
+
+    this.lineProgram = link(gl, LINE_VERT, LINE_FRAG);
+    this.lineLoc = {
+      mvp: gl.getUniformLocation(this.lineProgram, 'uMVP'),
+      offset: gl.getUniformLocation(this.lineProgram, 'uOffset'),
+      pos: gl.getAttribLocation(this.lineProgram, 'aPos'),
+    };
+    this.#initHighlight();
+
+    this.atlasCanvas = buildAtlas((w, h) => {
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      return c;
+    });
+    this.texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.atlasCanvas);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.clearColor(SKY[0], SKY[1], SKY[2], 1);
+  }
+
+  #initHighlight() {
+    const gl = this.gl;
+    const e = 0.002; // nudge outwards so the outline is not z-fought
+    const a = -e;
+    const b = 1 + e;
+    const c = [
+      [a, a, a], [b, a, a], [b, a, b], [a, a, b],
+      [a, b, a], [b, b, a], [b, b, b], [a, b, b],
+    ];
+    const edges = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+    const data = [];
+    for (const [i, j] of edges) data.push(...c[i], ...c[j]);
+    this.highlightVao = gl.createVertexArray();
+    gl.bindVertexArray(this.highlightVao);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(this.lineLoc.pos);
+    gl.vertexAttribPointer(this.lineLoc.pos, 3, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+  }
+
+  buildAll() {
+    const { cx, cy, cz } = this.world;
+    let vertices = 0;
+    for (let x = 0; x < cx; x++) {
+      for (let y = 0; y < cy; y++) {
+        for (let z = 0; z < cz; z++) {
+          vertices += this.rebuildChunk(this.world.chunkKey(x, y, z), x, y, z);
+        }
+      }
+    }
+    this.vertexCount = vertices;
+    return vertices;
+  }
+
+  rebuildChunk(key, cx, cy, cz) {
+    const gl = this.gl;
+    const mesh = buildChunkMesh(this.world, cx, cy, cz);
+    let entry = this.chunks.get(key);
+    if (!entry) {
+      entry = { passes: {} };
+      this.chunks.set(key, entry);
+    }
+    let count = 0;
+    for (const pass of ['solid', 'blend']) {
+      const data = mesh[pass];
+      let p = entry.passes[pass];
+      if (!p) {
+        p = { vao: gl.createVertexArray(), vbo: gl.createBuffer(), ebo: gl.createBuffer(), count: 0 };
+        gl.bindVertexArray(p.vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, p.vbo);
+        const stride = 6 * 4;
+        gl.enableVertexAttribArray(this.loc.pos);
+        gl.vertexAttribPointer(this.loc.pos, 3, gl.FLOAT, false, stride, 0);
+        gl.enableVertexAttribArray(this.loc.uv);
+        gl.vertexAttribPointer(this.loc.uv, 2, gl.FLOAT, false, stride, 12);
+        gl.enableVertexAttribArray(this.loc.light);
+        gl.vertexAttribPointer(this.loc.light, 1, gl.FLOAT, false, stride, 20);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.ebo);
+        gl.bindVertexArray(null);
+        entry.passes[pass] = p;
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER, p.vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, data.verts, gl.DYNAMIC_DRAW);
+      gl.bindVertexArray(p.vao);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.ebo);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data.idx, gl.DYNAMIC_DRAW);
+      gl.bindVertexArray(null);
+      p.count = data.idx.length;
+      count += data.verts.length / 6;
+    }
+    entry.center = [cx * CHUNK + CHUNK / 2, cy * CHUNK + CHUNK / 2, cz * CHUNK + CHUNK / 2];
+    return count;
+  }
+
+  rebuildKeys(keys) {
+    const { cx, cz } = this.world;
+    for (const key of keys) {
+      const x = key % cx;
+      const z = Math.floor(key / cx) % cz;
+      const y = Math.floor(key / (cx * cz));
+      this.rebuildChunk(key, x, y, z);
+    }
+  }
+
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.floor(this.canvas.clientWidth * dpr);
+    const h = Math.floor(this.canvas.clientHeight * dpr);
+    if (this.canvas.width !== w || this.canvas.height !== h) {
+      this.canvas.width = w;
+      this.canvas.height = h;
+    }
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  render(camera, highlight) {
+    const gl = this.gl;
+    this.resize();
+    const aspect = this.canvas.width / Math.max(1, this.canvas.height);
+    const proj = perspective((camera.fov ?? 72) * Math.PI / 180, aspect, 0.05, 220);
+    const fwd = forwardVector(camera.yaw, camera.pitch);
+    const eye = camera.eye;
+    const view = lookAt(eye, [eye[0] + fwd[0], eye[1] + fwd[1], eye[2] + fwd[2]]);
+    const mvp = multiply(proj, view);
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(this.program);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.uniform1i(this.loc.tex, 0);
+    gl.uniformMatrix4fv(this.loc.mvp, false, mvp);
+    gl.uniform3fv(this.loc.cam, eye);
+    gl.uniform3fv(this.loc.fog, SKY);
+    gl.uniform1f(this.loc.fogNear, 55);
+    gl.uniform1f(this.loc.fogFar, 130);
+
+    // solid pass
+    gl.disable(gl.BLEND);
+    gl.depthMask(true);
+    gl.uniform1f(this.loc.alphaCut, 0.35);
+    let draws = 0;
+    for (const entry of this.chunks.values()) {
+      const p = entry.passes.solid;
+      if (!p || !p.count) continue;
+      gl.bindVertexArray(p.vao);
+      gl.drawElements(gl.TRIANGLES, p.count, gl.UNSIGNED_INT, 0);
+      draws++;
+    }
+
+    // translucent pass (window glass), back to front
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+    gl.uniform1f(this.loc.alphaCut, 0.02);
+    const blended = [...this.chunks.values()].filter((e) => e.passes.blend?.count);
+    blended.sort((a, b) => dist2(b.center, eye) - dist2(a.center, eye));
+    for (const entry of blended) {
+      const p = entry.passes.blend;
+      gl.bindVertexArray(p.vao);
+      gl.drawElements(gl.TRIANGLES, p.count, gl.UNSIGNED_INT, 0);
+      draws++;
+    }
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+
+    if (highlight) {
+      gl.useProgram(this.lineProgram);
+      gl.uniformMatrix4fv(this.lineLoc.mvp, false, mvp);
+      gl.uniform3f(this.lineLoc.offset, highlight.x, highlight.y, highlight.z);
+      gl.bindVertexArray(this.highlightVao);
+      gl.drawArrays(gl.LINES, 0, 24);
+    }
+    gl.bindVertexArray(null);
+    this.drawCalls = draws;
+  }
+}
+
+function dist2(a, b) {
+  return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+}
+
+
+// ===== src/main.js =====
+// CabinCraft — glue: world, renderer, player, input and UI.
+
+
+
+
+
+
+
+const SAVE_KEY = 'cabincraft.world.v1';
+const HOTBAR_SIZE = 9;
+
+const el = (id) => document.getElementById(id);
+const canvas = el('view');
+
+function fail(message) {
+  const box = el('error');
+  box.hidden = false;
+  box.textContent = message;
+  console.error(message);
+}
+
+// --- world ---------------------------------------------------------------
+const world = new World(...ROOM.size);
+generateRoom(world);
+
+let loadedEdits = 0;
+try {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) {
+    loadedEdits = world.loadEdits(saved);
+    if (loadedEdits) world.computeLight();
+  }
+} catch {
+  /* private mode or storage disabled — play without saving */
+}
+
+const player = new Player(ROOM.spawn, ROOM.spawnYaw);
+
+let renderer;
+try {
+  renderer = new Renderer(canvas, world);
+  renderer.buildAll();
+} catch (err) {
+  fail(String(err.message || err));
+  throw err;
+}
+
+// --- hotbar and picker ---------------------------------------------------
+const hotbar = PALETTE.slice(0, HOTBAR_SIZE);
+let selected = 0;
+
+function iconFor(blockId, size = TILE * 3) {
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const tile = blockDef(blockId).tiles.side;
+  const sx = (tile % 16) * TILE;
+  const sy = Math.floor(tile / 16) * TILE;
+  ctx.drawImage(renderer.atlasCanvas, sx, sy, TILE, TILE, 0, 0, size, size);
+  return c;
+}
+
+function renderHotbar() {
+  const bar = el('hotbar');
+  bar.replaceChildren();
+  hotbar.forEach((id, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'slot' + (i === selected ? ' active' : '');
+    slot.title = blockDef(id).label;
+    slot.append(iconFor(id));
+    const num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = String(i + 1);
+    slot.append(num);
+    slot.addEventListener('click', () => {
+      selected = i;
+      renderHotbar();
+      showHeld();
+    });
+    bar.append(slot);
+  });
+}
+
+let heldTimer = 0;
+function showHeld() {
+  const held = el('held');
+  held.textContent = blockDef(hotbar[selected]).label;
+  held.style.opacity = '1';
+  clearTimeout(heldTimer);
+  heldTimer = setTimeout(() => { held.style.opacity = '0'; }, 1600);
+}
+
+function renderPicker() {
+  const grid = el('picker-grid');
+  grid.replaceChildren();
+  for (const id of PALETTE) {
+    const item = document.createElement('div');
+    item.className = 'pick';
+    item.append(iconFor(id));
+    const label = document.createElement('span');
+    label.textContent = blockDef(id).label;
+    item.append(label);
+    item.addEventListener('click', () => {
+      hotbar[selected] = id;
+      renderHotbar();
+      showHeld();
+      togglePicker(false);
+    });
+    grid.append(item);
+  }
+}
+
+let pickerOpen = false;
+function togglePicker(open) {
+  pickerOpen = open ?? !pickerOpen;
+  el('picker').hidden = !pickerOpen;
+  el('picker-slot').textContent = String(selected + 1);
+  if (pickerOpen && document.pointerLockElement) document.exitPointerLock();
+}
+
+// --- editing -------------------------------------------------------------
+let saveTimer = 0;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(SAVE_KEY, world.saveEdits());
+    } catch {
+      /* ignore quota / disabled storage */
+    }
+  }, 400);
+}
+
+function applyEdit(x, y, z, id) {
+  const prevSky = world.sky.slice();
+  const prevBlock = world.block.slice();
+  if (!world.set(x, y, z, id)) return false;
+  world.computeLight();
+
+  const dirty = world.chunksAround(x, y, z);
+  const { sx, sz } = world;
+  for (let i = 0; i < world.sky.length; i++) {
+    if (world.sky[i] === prevSky[i] && world.block[i] === prevBlock[i]) continue;
+    const bx = i % sx;
+    const bz = Math.floor(i / sx) % sz;
+    const by = Math.floor(i / (sx * sz));
+    for (const key of world.chunksAround(bx, by, bz)) dirty.add(key);
+  }
+  renderer.rebuildKeys(dirty);
+  scheduleSave();
+  return true;
+}
+
+function breakBlock() {
+  const hit = target();
+  if (!hit) return;
+  applyEdit(hit.x, hit.y, hit.z, AIR);
+}
+
+function placeBlock() {
+  const hit = target();
+  if (!hit) return;
+  const x = hit.x + hit.normal[0];
+  const y = hit.y + hit.normal[1];
+  const z = hit.z + hit.normal[2];
+  if (!world.inBounds(x, y, z) || world.get(x, y, z) !== AIR) return;
+  const id = hotbar[selected];
+  // Do not entomb the player in their own block.
+  if (blockDef(id).solid) {
+    world.setRaw(x, y, z, id);
+    const blocked = Player.intersectsSolid(world, player.pos, player.crouching);
+    world.setRaw(x, y, z, AIR);
+    if (blocked) return;
+  }
+  applyEdit(x, y, z, id);
+}
+
+function pickBlock() {
+  const hit = target();
+  if (!hit) return;
+  const existing = hotbar.indexOf(hit.id);
+  if (existing >= 0) selected = existing;
+  else hotbar[selected] = hit.id;
+  renderHotbar();
+  showHeld();
+}
+
+function target() {
+  const eye = player.eyePosition;
+  const dir = forwardVector(player.yaw, player.pitch);
+  return world.raycast(eye, dir, renderer.reach);
+}
+
+// --- input ---------------------------------------------------------------
+const input = { forward: false, back: false, left: false, right: false, up: false, down: false, sprint: false };
+let hudVisible = true;
+let paused = true;
+let started = false;
+let hadPointerLock = false;
+
+const KEYS = {
+  KeyW: 'forward', ArrowUp: 'forward',
+  KeyS: 'back', ArrowDown: 'back',
+  KeyA: 'left', ArrowLeft: 'left',
+  KeyD: 'right', ArrowRight: 'right',
+  Space: 'up',
+  ShiftLeft: 'down', ShiftRight: 'down',
+  ControlLeft: 'sprint', ControlRight: 'sprint',
+};
+
+addEventListener('keydown', (e) => {
+  if (KEYS[e.code]) {
+    input[KEYS[e.code]] = true;
+    if (e.code === 'Space') e.preventDefault();
+    return;
+  }
+  if (e.code === 'Escape') {
+    if (pickerOpen) togglePicker(false);
+    else if (started) stop();
+    return;
+  }
+  if (e.code === 'KeyE') { togglePicker(); return; }
+  if (e.code === 'KeyF') { player.flying = !player.flying; player.vel[1] = 0; return; }
+  if (e.code === 'KeyQ') { pickBlock(); return; }
+  if (e.code === 'KeyH') { hudVisible = !hudVisible; el('hud').hidden = !hudVisible || paused; return; }
+  if (e.code === 'KeyR') { resetRoom(); return; }
+  const n = Number(e.key);
+  if (Number.isInteger(n) && n >= 1 && n <= HOTBAR_SIZE) {
+    selected = n - 1;
+    renderHotbar();
+    showHeld();
+  }
+});
+
+addEventListener('keyup', (e) => {
+  if (KEYS[e.code]) input[KEYS[e.code]] = false;
+});
+
+addEventListener('blur', () => {
+  for (const k of Object.keys(input)) input[k] = false;
+});
+
+function useTool(button) {
+  if (button === 0) breakBlock();
+  else if (button === 2) placeBlock();
+  else if (button === 1) pickBlock();
+}
+
+// Pointer lock is the good path, but it is refused inside embedded frames,
+// so dragging the mouse looks around there instead.
+let dragging = false;
+let dragDistance = 0;
+let lastX = 0;
+let lastY = 0;
+let lockedAt = 0;
+
+canvas.addEventListener('mousedown', (e) => {
+  if (pickerOpen) return;
+  if (!started) { start(); return; }
+  if (document.pointerLockElement) {
+    useTool(e.button);
+  } else {
+    dragging = true;
+    dragDistance = 0;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+});
+
+addEventListener('mouseup', (e) => {
+  if (dragging && dragDistance < 6) useTool(e.button); // a click, not a look
+  dragging = false;
+});
+
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+addEventListener('wheel', (e) => {
+  if (!started || pickerOpen) return;
+  selected = (selected + (e.deltaY > 0 ? 1 : -1) + HOTBAR_SIZE) % HOTBAR_SIZE;
+  renderHotbar();
+  showHeld();
+}, { passive: true });
+
+addEventListener('mousemove', (e) => {
+  if (!started) return;
+  const locked = !!document.pointerLockElement;
+  if (!locked && !dragging) return;
+  // While dragging, client coordinates are more dependable than movementX.
+  const dx = locked ? e.movementX : e.clientX - lastX;
+  const dy = locked ? e.movementY : e.clientY - lastY;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  // Just after pointer lock engages the browser reports the cursor's jump from
+  // wherever it was, which would snap the view; and no real mouse travels more
+  // than ~120 px between two events. Ignore both kinds of bogus movement.
+  if (locked && performance.now() - lockedAt < 400) return;
+  if (Math.abs(dx) > 120 || Math.abs(dy) > 120) return;
+  dragDistance += Math.abs(dx) + Math.abs(dy);
+  const s = 0.0022;
+  player.yaw -= dx * s;
+  player.pitch -= dy * s;
+  const limit = Math.PI / 2 - 0.001;
+  player.pitch = Math.max(-limit, Math.min(limit, player.pitch));
+});
+
+function setPaused(value) {
+  paused = value;
+  el('menu').classList.toggle('hidden', !paused);
+  for (const id of ['crosshair', 'hotbar', 'held']) el(id).hidden = paused;
+  el('hud').hidden = paused || !hudVisible;
+  if (!paused) showHeld();
+}
+
+function start() {
+  started = true;
+  setPaused(false);
+  try {
+    canvas.requestPointerLock?.();
+  } catch {
+    /* embedded frames refuse pointer lock — drag to look instead */
+  }
+  setTimeout(() => {
+    if (started && !document.pointerLockElement) {
+      el('held').textContent = 'Drag to look around';
+      el('held').style.opacity = '1';
+      clearTimeout(heldTimer);
+      heldTimer = setTimeout(() => { el('held').style.opacity = '0'; }, 3000);
+    }
+  }, 400);
+}
+
+function stop() {
+  started = false;
+  setPaused(true);
+  if (document.pointerLockElement) document.exitPointerLock();
+}
+
+el('play').addEventListener('click', start);
+document.addEventListener('pointerlockchange', () => {
+  // Leaving pointer lock (Esc) pauses; entering it never does.
+  if (!document.pointerLockElement && started && hadPointerLock) stop();
+  hadPointerLock = !!document.pointerLockElement;
+  lockedAt = performance.now();
+});
+
+function resetRoom() {
+  world.edits.clear();
+  world.voxels.fill(0);
+  generateRoom(world);
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch { /* ignore */ }
+  renderer.buildAll();
+  player.respawn();
+}
+
+// --- loop ----------------------------------------------------------------
+let last = performance.now();
+let fpsAccum = 0;
+let fpsFrames = 0;
+let fps = 0;
+let frames = 0;
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+
+  if (!paused) player.update(dt, input, world);
+
+  const hit = target();
+  renderer.render({ eye: player.eyePosition, yaw: player.yaw, pitch: player.pitch, fov: 72 }, hit);
+
+  fpsAccum += dt;
+  fpsFrames++;
+  if (fpsAccum >= 0.5) {
+    fps = Math.round(fpsFrames / fpsAccum);
+    fpsAccum = 0;
+    fpsFrames = 0;
+    if (hudVisible && !paused) {
+      const [x, y, z] = player.pos;
+      el('hud-pos').textContent = `x ${x.toFixed(1)}  y ${y.toFixed(1)}  z ${z.toFixed(1)}${player.flying ? '  · flying' : ''}`;
+      el('hud-look').textContent = hit ? `looking at ${blockDef(hit.id).label}` : 'looking at —';
+      el('hud-perf').textContent = `${fps} fps · ${renderer.drawCalls} draws`;
+    }
+  }
+  frames++;
+  requestAnimationFrame(frame);
+}
+
+renderHotbar();
+renderPicker();
+setPaused(true);
+if (loadedEdits) {
+  el('menu-note').textContent = `Restored ${loadedEdits} of your changes from this browser.`;
+}
+requestAnimationFrame(frame);
+
+// Handles for the end-to-end tests.
+window.__cabin = {
+  world,
+  player,
+  renderer,
+  get ready() { return frames > 0; },
+  get frames() { return frames; },
+  get fps() { return fps; },
+  applyEdit,
+  target,
+  PLAYER,
+};
+
+</script>

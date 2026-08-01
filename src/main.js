@@ -198,6 +198,8 @@ function target() {
 const input = { forward: false, back: false, left: false, right: false, up: false, down: false, sprint: false };
 let hudVisible = true;
 let paused = true;
+let started = false;
+let hadPointerLock = false;
 
 const KEYS = {
   KeyW: 'forward', ArrowUp: 'forward',
@@ -215,7 +217,11 @@ addEventListener('keydown', (e) => {
     if (e.code === 'Space') e.preventDefault();
     return;
   }
-  if (e.code === 'Escape' && pickerOpen) { togglePicker(false); return; }
+  if (e.code === 'Escape') {
+    if (pickerOpen) togglePicker(false);
+    else if (started) stop();
+    return;
+  }
   if (e.code === 'KeyE') { togglePicker(); return; }
   if (e.code === 'KeyF') { player.flying = !player.flying; player.vel[1] = 0; return; }
   if (e.code === 'KeyQ') { pickBlock(); return; }
@@ -237,26 +243,65 @@ addEventListener('blur', () => {
   for (const k of Object.keys(input)) input[k] = false;
 });
 
+function useTool(button) {
+  if (button === 0) breakBlock();
+  else if (button === 2) placeBlock();
+  else if (button === 1) pickBlock();
+}
+
+// Pointer lock is the good path, but it is refused inside embedded frames,
+// so dragging the mouse looks around there instead.
+let dragging = false;
+let dragDistance = 0;
+let lastX = 0;
+let lastY = 0;
+let lockedAt = 0;
+
 canvas.addEventListener('mousedown', (e) => {
-  if (!document.pointerLockElement) return;
-  if (e.button === 0) breakBlock();
-  else if (e.button === 2) placeBlock();
-  else if (e.button === 1) pickBlock();
+  if (pickerOpen) return;
+  if (!started) { start(); return; }
+  if (document.pointerLockElement) {
+    useTool(e.button);
+  } else {
+    dragging = true;
+    dragDistance = 0;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
 });
+
+addEventListener('mouseup', (e) => {
+  if (dragging && dragDistance < 6) useTool(e.button); // a click, not a look
+  dragging = false;
+});
+
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 addEventListener('wheel', (e) => {
-  if (!document.pointerLockElement) return;
+  if (!started || pickerOpen) return;
   selected = (selected + (e.deltaY > 0 ? 1 : -1) + HOTBAR_SIZE) % HOTBAR_SIZE;
   renderHotbar();
   showHeld();
 }, { passive: true });
 
 addEventListener('mousemove', (e) => {
-  if (!document.pointerLockElement) return;
+  if (!started) return;
+  const locked = !!document.pointerLockElement;
+  if (!locked && !dragging) return;
+  // While dragging, client coordinates are more dependable than movementX.
+  const dx = locked ? e.movementX : e.clientX - lastX;
+  const dy = locked ? e.movementY : e.clientY - lastY;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  // Just after pointer lock engages the browser reports the cursor's jump from
+  // wherever it was, which would snap the view; and no real mouse travels more
+  // than ~120 px between two events. Ignore both kinds of bogus movement.
+  if (locked && performance.now() - lockedAt < 400) return;
+  if (Math.abs(dx) > 120 || Math.abs(dy) > 120) return;
+  dragDistance += Math.abs(dx) + Math.abs(dy);
   const s = 0.0022;
-  player.yaw -= e.movementX * s;
-  player.pitch -= e.movementY * s;
+  player.yaw -= dx * s;
+  player.pitch -= dy * s;
   const limit = Math.PI / 2 - 0.001;
   player.pitch = Math.max(-limit, Math.min(limit, player.pitch));
 });
@@ -269,12 +314,36 @@ function setPaused(value) {
   if (!paused) showHeld();
 }
 
-el('play').addEventListener('click', () => canvas.requestPointerLock());
-canvas.addEventListener('click', () => {
-  if (!document.pointerLockElement && !pickerOpen) canvas.requestPointerLock();
-});
+function start() {
+  started = true;
+  setPaused(false);
+  try {
+    canvas.requestPointerLock?.();
+  } catch {
+    /* embedded frames refuse pointer lock — drag to look instead */
+  }
+  setTimeout(() => {
+    if (started && !document.pointerLockElement) {
+      el('held').textContent = 'Drag to look around';
+      el('held').style.opacity = '1';
+      clearTimeout(heldTimer);
+      heldTimer = setTimeout(() => { el('held').style.opacity = '0'; }, 3000);
+    }
+  }, 400);
+}
+
+function stop() {
+  started = false;
+  setPaused(true);
+  if (document.pointerLockElement) document.exitPointerLock();
+}
+
+el('play').addEventListener('click', start);
 document.addEventListener('pointerlockchange', () => {
-  setPaused(!document.pointerLockElement);
+  // Leaving pointer lock (Esc) pauses; entering it never does.
+  if (!document.pointerLockElement && started && hadPointerLock) stop();
+  hadPointerLock = !!document.pointerLockElement;
+  lockedAt = performance.now();
 });
 
 function resetRoom() {
