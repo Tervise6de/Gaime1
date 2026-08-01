@@ -25,6 +25,16 @@ Mouse look uses pointer lock where the browser allows it; where it does not
 (inside an embedded frame, for instance) dragging the mouse looks around and a
 click without a drag still breaks or places a block.
 
+### On a phone or tablet
+
+Touch controls appear by themselves on any touch device. Your left thumb rests
+on a stick that walks — push it gently to stroll, all the way to run — and it
+springs up wherever you first press, so you never have to look for it. Drag
+anywhere else to look around, and tap to break the block in the crosshair.
+Break, Place, Down and Jump sit under your right thumb, with Blocks, Fly and
+Full (fullscreen) along the top edge. The hotbar moves to the top of the screen
+so nothing hides under your hands, and it scrolls sideways on narrow phones.
+
 | Control | Action |
 |---|---|
 | `W` `A` `S` `D` | walk |
@@ -40,6 +50,9 @@ click without a drag still breaks or places a block.
 | `H` | hide the HUD |
 | `R` | restore the room to how it was |
 | `Esc` | release the mouse |
+
+The same actions on touch: thumbstick to walk, drag to look, tap to break,
+and the on-screen Break / Place / Down / Jump / Blocks / Fly / Full buttons.
 
 Your changes are saved in the browser automatically, as a list of edits, and
 reapplied on top of the freshly generated room next time you load the page.
@@ -75,8 +88,8 @@ rendering library, no texture files.
 | `src/room.js` | The world generator: the cabin, its furniture, and the meadow and trees around it |
 | `src/mesher.js` | Turns a chunk into geometry — hidden faces dropped, per-vertex ambient occlusion, smooth light sampling |
 | `src/renderer.js` | WebGL2: one vertex array per chunk, a solid pass and a blended pass for glass, plus the block outline |
-| `src/player.js` | AABB physics swept against the grid: gravity, jumping, crouching, flying |
-| `src/main.js` | Input, hotbar, block picker, HUD and the frame loop |
+| `src/player.js` | AABB physics swept against the grid: gravity, jumping, crouching, flying, and analogue movement so a half-pushed thumbstick walks slowly |
+| `src/main.js` | Input for keyboard, mouse and touch, hotbar, block picker, HUD and the frame loop |
 
 Daylight is a flood fill from the open sky that leaks in sideways through the
 window glass and fades as it crosses the room, so the far end is dim and the
@@ -93,7 +106,10 @@ The unit tests cover voxel indexing, light propagation, ray casting, save
 handling, player physics and the room layout itself — the bed really is under
 the window, the doorway really is walkable. The end-to-end tests boot the game
 in Chromium and check it renders a lit room, that blocks can be broken and
-placed, and that edits survive a reload.
+placed, and that edits survive a reload. A second suite runs on an emulated
+phone and drives real touch events: the thumbstick walks, a gentle push walks
+slower than a hard one, dragging looks, a tap breaks, and the buttons do what
+they say.
 
 ```
 node scripts/shoot.mjs [dir]   # render the viewpoints in docs/screenshots

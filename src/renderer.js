@@ -217,7 +217,10 @@ export class Renderer {
   }
 
   resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Phones have very dense screens; rendering every physical pixel costs
+    // more than it shows, so they get a lower ceiling than desktops.
+    const cap = matchMedia('(any-pointer: coarse)').matches ? 1.5 : 2;
+    const dpr = Math.min(window.devicePixelRatio || 1, cap);
     const w = Math.floor(this.canvas.clientWidth * dpr);
     const h = Math.floor(this.canvas.clientHeight * dpr);
     if (this.canvas.width !== w || this.canvas.height !== h) {

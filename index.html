@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>CabinCraft — the log-cabin room</title>
 <link rel="stylesheet" href="src/style.css" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%237e5432'/><rect y='4' width='16' height='1' fill='%233b2416'/><rect y='9' width='16' height='1' fill='%233b2416'/></svg>" />
@@ -23,6 +23,21 @@
 
 <div id="hotbar" hidden></div>
 <div id="held" hidden></div>
+
+<div id="touch" hidden>
+  <div id="joystick"><div id="knob"></div></div>
+  <div id="touch-actions">
+    <button class="tbtn" id="t-break">Break</button>
+    <button class="tbtn" id="t-place">Place</button>
+    <button class="tbtn" id="t-down">Down</button>
+    <button class="tbtn" id="t-jump">Jump</button>
+  </div>
+  <div id="touch-tools">
+    <button class="tbtn small" id="t-blocks">Blocks</button>
+    <button class="tbtn small" id="t-fly">Fly</button>
+    <button class="tbtn small" id="t-full">Full</button>
+  </div>
+</div>
 
 <div id="picker" hidden>
   <h2>Blocks</h2>

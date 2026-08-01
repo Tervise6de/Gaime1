@@ -16,7 +16,10 @@
 html, body {
   margin: 0;
   height: 100%;
+  height: 100dvh; /* phones: exclude the browser chrome */
   overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
   background: #10100f;
   color: var(--ink);
   font: 14px/1.45 var(--mono);
@@ -116,6 +119,7 @@ html, body {
   position: fixed;
   inset: 50% auto auto 50%;
   transform: translate(-50%, -50%);
+  z-index: 8; /* above the touch controls */
   width: min(560px, 92vw);
   max-height: 78vh;
   overflow: auto;
@@ -218,6 +222,86 @@ kbd {
 }
 .muted { opacity: 0.55; font-size: 11px; }
 #menu-note { margin-bottom: 0; margin-top: 18px; }
+
+/* --- touch controls ---
+   Only shown on touch devices. The left thumb steers, the right thumb reaches
+   the actions, and everything between the two is the look area. */
+#touch { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+#touch[hidden] { display: none; }
+
+#joystick {
+  position: absolute;
+  left: calc(22px + env(safe-area-inset-left));
+  bottom: calc(26px + env(safe-area-inset-bottom));
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 1px solid var(--edge);
+  background: rgba(28, 20, 14, 0.42);
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+#joystick.active { opacity: 0.9; }
+#knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  background: rgba(224, 176, 112, 0.55);
+  border: 1px solid rgba(251, 240, 210, 0.5);
+}
+
+#touch-actions {
+  position: absolute;
+  right: calc(18px + env(safe-area-inset-right));
+  bottom: calc(26px + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 10px;
+}
+#touch-tools {
+  position: absolute;
+  right: calc(18px + env(safe-area-inset-right));
+  top: calc(14px + env(safe-area-inset-top));
+  display: grid;
+  gap: 8px;
+}
+
+.tbtn {
+  pointer-events: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  width: 74px;
+  height: 56px;
+  padding: 0;
+  color: var(--ink);
+  background: rgba(28, 20, 14, 0.6);
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  touch-action: none;
+}
+.tbtn.small { width: 62px; height: 38px; font-size: 9px; }
+.tbtn:active, .tbtn.on { background: rgba(224, 176, 112, 0.32); border-color: var(--accent); }
+
+/* Thumbs need the bottom of the screen, so the hotbar moves out of the way
+   and the HUD starts hidden. */
+body.touch #hotbar {
+  top: calc(10px + env(safe-area-inset-top));
+  bottom: auto;
+  max-width: calc(100vw - 180px);
+  overflow-x: auto;
+}
+body.touch .slot { width: 40px; height: 40px; flex: 0 0 auto; }
+body.touch .slot canvas { width: 30px; height: 30px; }
+body.touch #held { bottom: auto; top: calc(62px + env(safe-area-inset-top)); }
+body.touch #crosshair { opacity: 0.75; }
+body.touch #view, body.touch #picker { touch-action: none; }
+body.touch #picker { width: min(560px, 94vw); }
 
 #error {
   position: fixed;

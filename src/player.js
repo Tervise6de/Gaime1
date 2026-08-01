@@ -41,16 +41,18 @@ export class Player {
   update(dt, input, world) {
     const sin = Math.sin(this.yaw);
     const cos = Math.cos(this.yaw);
-    // forward is -Z at yaw 0
-    let wx = 0;
-    let wz = 0;
-    if (input.forward) { wx -= sin; wz -= cos; }
-    if (input.back) { wx += sin; wz += cos; }
-    if (input.left) { wx -= cos; wz += sin; }
-    if (input.right) { wx += cos; wz -= sin; }
+    // Keys are on/off; a thumbstick is analogue, so both feed the same pair of
+    // axes and a partly pushed stick walks slower. Forward is -Z at yaw 0.
+    const ahead = (input.forward ? 1 : 0) - (input.back ? 1 : 0) + (input.moveForward || 0);
+    const aside = (input.right ? 1 : 0) - (input.left ? 1 : 0) + (input.moveRight || 0);
+    let wx = -sin * ahead + cos * aside;
+    let wz = -cos * ahead - sin * aside;
     const len = Math.hypot(wx, wz);
-    if (len > 0) { wx /= len; wz /= len; }
+    if (len > 1) { wx /= len; wz /= len; } // never faster than full tilt
 
+    // A tap on a touch button can begin and end between two frames, so a
+    // latched press counts as well as a held key.
+    const wantUp = input.up || input.jumpPressed;
     this.crouching = !this.flying && input.down;
     const speed = this.flying
       ? PLAYER.flySpeed * (input.sprint ? 1.8 : 1)
@@ -60,11 +62,11 @@ export class Player {
     this.vel[2] = wz * speed;
 
     if (this.flying) {
-      this.vel[1] = (input.up ? 1 : 0) * speed - (input.down ? 1 : 0) * speed;
+      this.vel[1] = (wantUp ? 1 : 0) * speed - (input.down ? 1 : 0) * speed;
     } else {
       this.vel[1] -= PLAYER.gravity * dt;
       if (this.vel[1] < -PLAYER.maxFall) this.vel[1] = -PLAYER.maxFall;
-      if (input.up && this.onGround) {
+      if (wantUp && this.onGround) {
         this.vel[1] = PLAYER.jumpSpeed;
         this.onGround = false;
       }

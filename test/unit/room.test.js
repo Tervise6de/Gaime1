@@ -107,3 +107,14 @@ test('window glass is meshed in the translucent pass', () => {
   const mesh = buildChunkMesh(world, cx, 0, 1);
   assert.ok(mesh.blend.verts.length > 0, 'glass goes to the blended pass');
 });
+
+test('a jump tapped between two frames still lifts the player', () => {
+  const p = new Player([20.5, ROOM.floorY + 1, 30.5]);
+  const idle = { forward: false, back: false, left: false, right: false, up: false, down: false, sprint: false };
+  for (let i = 0; i < 30; i++) p.update(1 / 60, idle, world);
+  assert.ok(p.onGround, 'standing on the floor');
+
+  // the button was pressed and released before this frame ran
+  p.update(1 / 60, { ...idle, jumpPressed: true }, world);
+  assert.ok(p.pos[1] > ROOM.floorY + 1, `latched tap jumps, y=${p.pos[1]}`);
+});

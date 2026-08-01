@@ -13,6 +13,16 @@ const HOTBAR_SIZE = 9;
 const el = (id) => document.getElementById(id);
 const canvas = el('view');
 
+// The single-file build is injected into a host page whose <head> we do not
+// control, and without this a phone lays the page out at 980 px wide and
+// shrinks every control to a third of its size.
+if (!document.querySelector('meta[name="viewport"]')) {
+  const meta = document.createElement('meta');
+  meta.name = 'viewport';
+  meta.content = 'width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover';
+  document.head.append(meta);
+}
+
 function fail(message) {
   const box = el('error');
   box.hidden = false;
@@ -118,6 +128,7 @@ function togglePicker(open) {
   pickerOpen = open ?? !pickerOpen;
   el('picker').hidden = !pickerOpen;
   el('picker-slot').textContent = String(selected + 1);
+  if (TOUCH) el('touch').hidden = pickerOpen || paused; // thumbs off while choosing
   if (pickerOpen && document.pointerLockElement) document.exitPointerLock();
 }
 
@@ -195,7 +206,7 @@ function target() {
 }
 
 // --- input ---------------------------------------------------------------
-const input = { forward: false, back: false, left: false, right: false, up: false, down: false, sprint: false };
+const input = { forward: false, back: false, left: false, right: false, up: false, down: false, sprint: false, jumpPressed: false };
 let hudVisible = true;
 let paused = true;
 let started = false;
@@ -310,20 +321,165 @@ function setPaused(value) {
   paused = value;
   el('menu').classList.toggle('hidden', !paused);
   for (const id of ['crosshair', 'hotbar', 'held']) el(id).hidden = paused;
+  if (TOUCH) el('touch').hidden = paused;
   el('hud').hidden = paused || !hudVisible;
   if (!paused) showHeld();
+}
+
+// --- touch controls ------------------------------------------------------
+// A phone has no keyboard and no pointer lock: the left thumb steers a stick,
+// the right thumb reaches Break/Place/Jump, and dragging anywhere else looks.
+const TOUCH = matchMedia('(any-pointer: coarse)').matches
+  || new URLSearchParams(location.search).has('touch');
+
+const JOY_RADIUS = 54;
+const JOY_DEADZONE = 7;
+let joyTouch = null; // { id, cx, cy }
+let lookTouch = null; // { id, x, y, moved, at }
+
+function joystickZone(t) {
+  return t.clientX < innerWidth * 0.5 && t.clientY > innerHeight * 0.45;
+}
+
+function setJoystick(dx, dy) {
+  const knob = el('knob');
+  const distance = Math.hypot(dx, dy);
+  const scale = distance > JOY_RADIUS ? JOY_RADIUS / distance : 1;
+  knob.style.transform = `translate(${dx * scale}px, ${dy * scale}px)`;
+  if (distance < JOY_DEADZONE) {
+    input.moveForward = 0;
+    input.moveRight = 0;
+    input.sprint = false;
+    return;
+  }
+  const pull = Math.min(1, distance / JOY_RADIUS);
+  input.moveRight = (dx / distance) * pull;
+  input.moveForward = -(dy / distance) * pull;
+  input.sprint = pull > 0.92; // push the stick all the way to run
+}
+
+function releaseJoystick() {
+  joyTouch = null;
+  input.moveForward = 0;
+  input.moveRight = 0;
+  input.sprint = false;
+  const stick = el('joystick');
+  el('knob').style.transform = '';
+  stick.classList.remove('active');
+  stick.style.left = '';
+  stick.style.bottom = '';
+}
+
+let lastTouchAt = 0;
+
+function holdButton(id, onDown, onUp) {
+  const button = el(id);
+  const down = (e) => {
+    e.preventDefault();
+    lastTouchAt = performance.now();
+    button.classList.add('on');
+    onDown();
+  };
+  const up = (e) => {
+    e.preventDefault();
+    button.classList.remove('on');
+    onUp?.();
+  };
+  button.addEventListener('touchstart', down, { passive: false });
+  button.addEventListener('touchend', up, { passive: false });
+  button.addEventListener('touchcancel', up, { passive: false });
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (performance.now() - lastTouchAt < 600) return; // already handled as a tap
+    onDown();
+    if (onUp) setTimeout(onUp, 120); // a click has no hold, so pulse it
+  });
+}
+
+function setupTouch() {
+  document.body.classList.add('touch');
+  el('touch').hidden = false;
+  hudVisible = false;
+  el('play').textContent = 'Tap to play';
+  el('menu-note').textContent = 'Left thumb walks, drag to look, tap a block to break it.';
+
+  holdButton('t-jump', () => { input.up = true; input.jumpPressed = true; }, () => { input.up = false; });
+  holdButton('t-down', () => { input.down = true; }, () => { input.down = false; });
+  holdButton('t-break', breakBlock);
+  holdButton('t-place', placeBlock);
+  holdButton('t-blocks', () => togglePicker());
+  holdButton('t-fly', () => {
+    player.flying = !player.flying;
+    player.vel[1] = 0;
+    el('t-fly').classList.toggle('on', player.flying);
+  });
+  holdButton('t-full', () => {
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else document.documentElement.requestFullscreen?.().catch(() => {});
+  });
+
+  canvas.addEventListener('touchstart', (e) => {
+    if (!started) { start(); return; }
+    for (const t of e.changedTouches) {
+      if (!joyTouch && joystickZone(t)) {
+        joyTouch = { id: t.identifier, cx: t.clientX, cy: t.clientY };
+        el('joystick').classList.add('active');
+        // move the stick under the thumb wherever it landed
+        el('joystick').style.left = `${t.clientX - 66}px`;
+        el('joystick').style.bottom = `${innerHeight - t.clientY - 66}px`;
+        setJoystick(0, 0);
+      } else if (!lookTouch) {
+        lookTouch = { id: t.identifier, x: t.clientX, y: t.clientY, moved: 0, at: performance.now() };
+      }
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    for (const t of e.changedTouches) {
+      if (joyTouch && t.identifier === joyTouch.id) {
+        setJoystick(t.clientX - joyTouch.cx, t.clientY - joyTouch.cy);
+      } else if (lookTouch && t.identifier === lookTouch.id) {
+        const dx = t.clientX - lookTouch.x;
+        const dy = t.clientY - lookTouch.y;
+        lookTouch.x = t.clientX;
+        lookTouch.y = t.clientY;
+        lookTouch.moved += Math.abs(dx) + Math.abs(dy);
+        const s = 0.0034; // a thumb travels less far than a mouse
+        player.yaw -= dx * s;
+        player.pitch -= dy * s;
+        const limit = Math.PI / 2 - 0.001;
+        player.pitch = Math.max(-limit, Math.min(limit, player.pitch));
+      }
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  const endTouch = (e) => {
+    for (const t of e.changedTouches) {
+      if (joyTouch && t.identifier === joyTouch.id) releaseJoystick();
+      else if (lookTouch && t.identifier === lookTouch.id) {
+        // a tap, rather than a look, breaks the block in the crosshair
+        if (lookTouch.moved < 12 && performance.now() - lookTouch.at < 400) breakBlock();
+        lookTouch = null;
+      }
+    }
+    e.preventDefault();
+  };
+  canvas.addEventListener('touchend', endTouch, { passive: false });
+  canvas.addEventListener('touchcancel', endTouch, { passive: false });
 }
 
 function start() {
   started = true;
   setPaused(false);
   try {
-    canvas.requestPointerLock?.();
+    if (!TOUCH) canvas.requestPointerLock?.();
   } catch {
     /* embedded frames refuse pointer lock — drag to look instead */
   }
   setTimeout(() => {
-    if (started && !document.pointerLockElement) {
+    if (started && !TOUCH && !document.pointerLockElement) {
       el('held').textContent = 'Drag to look around';
       el('held').style.opacity = '1';
       clearTimeout(heldTimer);
@@ -368,7 +524,10 @@ function frame(now) {
   const dt = Math.min((now - last) / 1000, 0.05);
   last = now;
 
-  if (!paused) player.update(dt, input, world);
+  if (!paused) {
+    player.update(dt, input, world);
+    input.jumpPressed = false; // latched taps are good for exactly one frame
+  }
 
   const hit = target();
   renderer.render({ eye: player.eyePosition, yaw: player.yaw, pitch: player.pitch, fov: 72 }, hit);
@@ -392,6 +551,7 @@ function frame(now) {
 
 renderHotbar();
 renderPicker();
+if (TOUCH) setupTouch();
 setPaused(true);
 if (loadedEdits) {
   el('menu-note').textContent = `Restored ${loadedEdits} of your changes from this browser.`;
@@ -408,5 +568,7 @@ window.__cabin = {
   get fps() { return fps; },
   applyEdit,
   target,
+  input,
+  touch: TOUCH,
   PLAYER,
 };
